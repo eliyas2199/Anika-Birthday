@@ -1,0 +1,319 @@
+/* =========================================================
+   PHASE 3 — Birthday wish and portrait reveal.
+   Every selector is prefixed with "p3-" so this file can later be
+   merged with the other phases without name clashes.
+   ========================================================= */
+:root {
+  --p3-bg: #070a1c;
+  --p3-gold: #E8C987;
+  --p3-blush: #E9B9CB;
+}
+
+html { height: 100%; background: var(--p3-bg); }
+
+.p3-body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--p3-bg);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.p3-root {
+  /* ===================================================
+     ADJUSTABLE SETTINGS  (change these, not the logic)
+     =================================================== */
+  --p3-moon-size: min(40vmin, 240px);          /* same as Phase 2 */
+  --p3-moon-top: 7%;                           /* same as Phase 2 */
+  --p3-moon-gap: clamp(16px, 3.5vh, 40px);     /* space between the moon and the content */
+  --p3-content-bottom: clamp(16px, 4vh, 48px); /* space below the content */
+  --p3-content-side: 16px;                     /* space at the left and right edges */
+  --p3-portrait-max-w: min(88vw, 560px);       /* maximum portrait width */
+  --p3-portrait-pad: clamp(8px, 2vh, 20px);    /* room around the portrait (also room for the zoom) */
+  --p3-portrait-radius: 6px;                   /* corner rounding (0 for sharp corners) */
+
+  /* Durations: phase3.js overwrites these from its CONFIG */
+  --p3-msg-in: 1600ms;
+  --p3-msg-out: 1200ms;
+  --p3-portrait-in: 2800ms;
+  --p3-portrait-out: 2000ms;
+  --p3-zoom-ms: 14000ms;
+  --p3-zoom-scale: 1.06;
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--p3-bg);
+}
+
+/* ---------- Sky (same look as Phase 2) ---------- */
+.p3-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 108%, rgba(120, 52, 110, 0.55) 0%, rgba(60, 24, 70, 0.28) 45%, transparent 75%),
+    linear-gradient(180deg, #04050f 0%, #080b22 34%, #130f2e 66%, #24112f 100%);
+}
+
+.p3-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.p3-star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #FFF4DA;
+  opacity: 0.25;
+  animation: p3-twinkle var(--d) ease-in-out var(--delay) infinite alternate;
+}
+
+.p3-star--big { box-shadow: 0 0 6px 1px rgba(255, 238, 200, 0.55); }
+
+.p3-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.p3-cloud {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(22px);
+  background: radial-gradient(ellipse at 50% 50%, rgba(138, 104, 178, 0.22), rgba(90, 60, 130, 0.10) 55%, transparent 75%);
+  animation: p3-drift 70s ease-in-out infinite alternate;
+}
+.p3-cloud--a { width: 70vw; height: 16vh; left: -12vw; top: 46%; }
+.p3-cloud--b { width: 60vw; height: 14vh; right: -14vw; top: 66%; animation-duration: 90s; animation-direction: alternate-reverse; }
+.p3-cloud--c { width: 80vw; height: 18vh; left: 8vw; top: 82%; animation-duration: 80s; }
+
+/* ---------- Moon (identical to Phase 2's final state) ---------- */
+.p3-moon {
+  position: absolute;
+  z-index: 3;
+  top: var(--p3-moon-top);
+  left: calc(50% - var(--p3-moon-size) / 2);
+  width: var(--p3-moon-size);
+  height: var(--p3-moon-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: default;
+  filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.p3-moon svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.p3-moon-halo {
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 240, 200, 0.22) 0%, rgba(232, 201, 135, 0.10) 32%, transparent 62%);
+}
+
+@media (orientation: landscape) {
+  .p3-root { --p3-moon-size: min(30vmin, 220px); }
+  .p3-moon {
+    left: auto;
+    right: 8%;
+  }
+}
+
+/* Only "ready" while it can be used as the navigation button */
+.p3-moon.is-ready {
+  cursor: pointer;
+  animation: p3-pulse 3.4s ease-in-out infinite;
+}
+
+.p3-moon.is-ready:hover {
+  filter: drop-shadow(0 0 30px rgba(255, 242, 200, 0.75)) drop-shadow(0 0 90px rgba(232, 201, 135, 0.45));
+}
+
+.p3-moon:focus-visible {
+  outline: 2px solid rgba(232, 201, 135, 0.95);
+  outline-offset: 12px;
+}
+
+.p3-moon.is-activated {
+  animation: p3-activate 0.9s ease-out 1;
+}
+
+/* ---------- Content area: always BELOW the moon ---------- */
+.p3-stage {
+  position: absolute;
+  z-index: 2;
+  left: 0;
+  right: 0;
+  bottom: var(--p3-content-bottom);
+  top: calc(var(--p3-moon-top) + var(--p3-moon-size) + var(--p3-moon-gap));
+  padding: 0 var(--p3-content-side);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  place-items: center;
+  pointer-events: none;
+}
+
+/* ---------- Birthday message ---------- */
+.p3-message {
+  grid-area: 1 / 1;
+  margin: 0;
+  padding: 0.05em 0.18em;
+  max-width: 100%;
+  text-align: center;
+  text-wrap: balance;
+  font-family: 'Great Vibes', 'Parisienne', 'Snell Roundhand', 'Apple Chancery', 'Segoe Script', 'Brush Script MT', cursive;
+  font-weight: 400;
+  font-size: clamp(2.5rem, min(12vw, 14vh), 5.6rem);
+  line-height: 1.18;
+  background: linear-gradient(180deg, #FFF7DC 0%, #F7D88F 52%, #F0A24A 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter: drop-shadow(0 0 16px rgba(255, 165, 60, 0.55)) drop-shadow(0 0 5px rgba(255, 224, 160, 0.55));
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  /* leaving: uses the "out" duration */
+  transition:
+    opacity var(--p3-msg-out) ease,
+    transform var(--p3-msg-out) ease,
+    visibility 0s linear var(--p3-msg-out);
+}
+
+.p3-root.is-message-in .p3-message {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition:
+    opacity var(--p3-msg-in) ease,
+    transform var(--p3-msg-in) ease,
+    visibility 0s;
+}
+
+/* ---------- Portrait ---------- */
+.p3-portrait {
+  grid-area: 1 / 1;
+  margin: 0;
+  width: 100%;
+  max-width: var(--p3-portrait-max-w);
+  height: 100%;
+  box-sizing: border-box;
+  padding: var(--p3-portrait-pad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity var(--p3-portrait-out) ease,
+    visibility 0s linear var(--p3-portrait-out);
+}
+
+.p3-root.is-portrait-in .p3-portrait {
+  opacity: 1;
+  visibility: visible;
+  transition:
+    opacity var(--p3-portrait-in) ease,
+    visibility 0s;
+}
+
+/* Natural size, never stretched, never cropped: it only shrinks to fit */
+.p3-portrait img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--p3-portrait-radius);
+  box-shadow:
+    0 0 0 1px rgba(232, 201, 135, 0.55),
+    0 0 26px rgba(232, 201, 135, 0.26),
+    0 0 80px rgba(185, 154, 207, 0.18);
+  -webkit-user-drag: none;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Slow, restrained zoom + breathing rim light (starts when the reveal starts) */
+.p3-root.has-portrait .p3-portrait img {
+  animation:
+    p3-zoom var(--p3-zoom-ms) cubic-bezier(0.25, 0, 0.35, 1) forwards,
+    p3-glow 5s ease-in-out infinite alternate;
+}
+
+/* Fallback if the photo is missing or cannot be loaded */
+.p3-fallback {
+  display: none;
+  width: min(56vw, 300px);
+  max-height: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 10px 10px;
+  border: 1px solid rgba(232, 201, 135, 0.55);
+  background: radial-gradient(ellipse at 50% 38%, rgba(232, 201, 135, 0.22), rgba(120, 52, 110, 0.18) 55%, rgba(7, 10, 28, 0.2) 100%);
+  box-shadow: 0 0 40px rgba(232, 201, 135, 0.22);
+  color: rgba(255, 238, 190, 0.85);
+  align-items: center;
+  justify-content: center;
+}
+.p3-fallback svg { width: 22%; height: auto; filter: drop-shadow(0 0 10px rgba(255, 224, 160, 0.8)); }
+
+.p3-root.p3-no-image .p3-portrait img { display: none; }
+.p3-root.p3-no-image .p3-fallback { display: flex; }
+
+/* ---------- Keyframes ---------- */
+@keyframes p3-twinkle { from { opacity: 0.12; } to { opacity: 0.95; } }
+@keyframes p3-drift { from { transform: translate3d(-4vw, 0, 0); } to { transform: translate3d(5vw, 0, 0); } }
+
+@keyframes p3-pulse {
+  0%, 100% {
+    scale: 1;
+    filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  }
+  50% {
+    scale: 1.035;
+    filter: drop-shadow(0 0 34px rgba(255, 242, 200, 0.82)) drop-shadow(0 0 100px rgba(232, 201, 135, 0.5));
+  }
+}
+
+@keyframes p3-activate {
+  0%   { scale: 1; }
+  40%  { scale: 1.07; filter: drop-shadow(0 0 46px rgba(255, 246, 220, 1)) drop-shadow(0 0 120px rgba(232, 201, 135, 0.7)); }
+  100% { scale: 1; }
+}
+
+@keyframes p3-zoom {
+  from { transform: scale(1); }
+  to   { transform: scale(var(--p3-zoom-scale, 1.06)); }
+}
+
+@keyframes p3-glow {
+  from { box-shadow: 0 0 0 1px rgba(232, 201, 135, 0.45), 0 0 20px rgba(232, 201, 135, 0.18), 0 0 60px rgba(185, 154, 207, 0.12); }
+  to   { box-shadow: 0 0 0 1px rgba(232, 201, 135, 0.65), 0 0 34px rgba(232, 201, 135, 0.34), 0 0 96px rgba(185, 154, 207, 0.22); }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .p3-star, .p3-cloud, .p3-moon.is-ready, .p3-moon.is-activated { animation: none; }
+  .p3-star { opacity: 0.55; }
+  .p3-message { transform: none; }
+  .p3-root.has-portrait .p3-portrait img { animation: none; }
+}

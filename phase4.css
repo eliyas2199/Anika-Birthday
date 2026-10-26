@@ -1,0 +1,753 @@
+/* =========================================================
+   STAGE 4 — PART 1 : The Royal Magical Gift Box
+   Every selector starts with "p4-" so this file can be merged
+   with the other stages without name clashes.
+   ========================================================= */
+:root {
+  --p4-bg: #070a1c;
+  --p4-gold: #E8C987;
+}
+
+html { height: 100%; background: var(--p4-bg); }
+
+.p4-body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--p4-bg);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.p4-root {
+  /* ===================================================
+     ADJUSTABLE SETTINGS  (change these, not the logic)
+     =================================================== */
+  --p4-moon-size: min(40vmin, 240px);          /* same as Stage 2 / 3 */
+  --p4-moon-top: 7%;                           /* same as Stage 2 / 3 */
+  --p4-moon-gap: clamp(16px, 3.5vh, 40px);     /* space between the moon and the letter / gifts */
+  --p4-content-bottom: clamp(16px, 4vh, 48px); /* space below a gift (portrait, hijab) */
+  --p4-safe-b: env(safe-area-inset-bottom, 0px);
+  --p4-roller: clamp(20px, 3.8dvh, 30px);      /* thickness of the scroll rollers */
+  --p4-letter-max-w: 640px;                    /* widest the scroll may become */
+  --p4-gift-max-w: 560px;                      /* widest a gift may become */
+  --p4-scene-max-h: 78dvh;                     /* how tall the lower scene may be */
+  --p4-seam-x: 45.7%;                          /* where gifts leave the box (JS overwrites from CONFIG) */
+  --p4-seam-y: 33.6%;
+  --p4-stage-top: calc(var(--p4-moon-top) + var(--p4-moon-size) + var(--p4-moon-gap));
+
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--p4-bg);
+}
+
+/* ---------- Sky (same look as Stage 2 / 3) ---------- */
+.p4-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 108%, rgba(120, 52, 110, 0.55) 0%, rgba(60, 24, 70, 0.28) 45%, transparent 75%),
+    linear-gradient(180deg, #04050f 0%, #080b22 34%, #130f2e 66%, #24112f 100%);
+}
+.p4-stars { position: absolute; inset: 0; pointer-events: none; }
+.p4-star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #FFF4DA;
+  opacity: 0.25;
+  animation: p4-twinkle var(--d) ease-in-out var(--delay) infinite alternate;
+}
+.p4-star--big { box-shadow: 0 0 6px 1px rgba(255, 238, 200, 0.55); }
+.p4-clouds { position: absolute; inset: 0; pointer-events: none; }
+.p4-cloud {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(22px);
+  background: radial-gradient(ellipse at 50% 50%, rgba(138, 104, 178, 0.22), rgba(90, 60, 130, 0.10) 55%, transparent 75%);
+  animation: p4-drift 70s ease-in-out infinite alternate;
+}
+.p4-cloud--a { width: 70vw; height: 16vh; left: -12vw; top: 46%; }
+.p4-cloud--b { width: 60vw; height: 14vh; right: -14vw; top: 66%; animation-duration: 90s; animation-direction: alternate-reverse; }
+.p4-cloud--c { width: 80vw; height: 18vh; left: 8vw; top: 82%; animation-duration: 80s; }
+
+/* Merged build: the earlier stages already draw the sky */
+.p4-root[data-embedded] { background: transparent; }
+.p4-root[data-embedded] .p4-sky,
+.p4-root[data-embedded] .p4-stars,
+.p4-root[data-embedded] .p4-clouds { display: none; }
+
+/* ---------- Dark ground under the scene (only visible on wide screens) ---------- */
+.p4-ground {
+  position: absolute;
+  z-index: 1;
+  left: 0; right: 0; bottom: 0;
+  height: 26%;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(9, 6, 22, 0.95) 0%, rgba(14, 9, 30, 0.55) 45%, transparent 100%);
+  opacity: 0;
+}
+.p4-root.is-entered .p4-ground { opacity: 1; transition: opacity 2.4s ease; }
+
+/* ---------- Scene + gift box (SVG). Two layers share exactly the same box:
+              .p4-scene (back, z 2)  ...  gifts  ...  .p4-scene-front (front, z 4) ---------- */
+.p4-sc {
+  position: absolute;
+  left: 0; right: 0;
+  margin-inline: auto;
+  bottom: 0;
+  width: min(100%, calc(var(--p4-scene-max-h) * 940 / 1192));
+  aspect-ratio: 940 / 1192;
+  pointer-events: none;
+  opacity: 0;
+  translate: 0 22px;
+}
+.p4-scene       { z-index: 2; }
+.p4-scene-front { z-index: 4; }
+.p4-root.is-entered .p4-sc {
+  opacity: 1;
+  translate: 0 0;
+  transition: opacity 2.2s ease, translate 2.8s cubic-bezier(0.2, 0.65, 0.2, 1);
+}
+.p4-sc-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Only the backdrop fades into the sky at the top (and at the sides on wide screens); the box itself never fades */
+.p4-bg {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.14) 3.5%, rgba(0, 0, 0, 0.42) 8%, rgba(0, 0, 0, 0.8) 13.5%, #000 18%);
+          mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.14) 3.5%, rgba(0, 0, 0, 0.42) 8%, rgba(0, 0, 0, 0.8) 13.5%, #000 18%);
+}
+@media (min-aspect-ratio: 70/100) {
+  .p4-bg {
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.14) 3.5%, rgba(0, 0, 0, 0.42) 8%, rgba(0, 0, 0, 0.8) 13.5%, #000 18%), linear-gradient(to right, transparent 0%, #000 25%, #000 75%, transparent 100%);
+    -webkit-mask-composite: source-in;
+            mask-image: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.14) 3.5%, rgba(0, 0, 0, 0.42) 8%, rgba(0, 0, 0, 0.8) 13.5%, #000 18%), linear-gradient(to right, transparent 0%, #000 25%, #000 75%, transparent 100%);
+            mask-composite: intersect;
+  }
+}
+
+/* Light that gathers inside the open box */
+.p4-inner-glow {
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.p4-root.is-box-opening .p4-inner-glow,
+.p4-root.is-box-open .p4-inner-glow { opacity: 0.38; }
+.p4-root.is-glow.is-box-open .p4-inner-glow,
+.p4-root.is-box-opening.is-glow .p4-inner-glow { opacity: 0.95; }
+
+/* Little twinkles on the ornaments */
+.p4-spots { position: absolute; inset: 0; }
+.p4-spots i {
+  position: absolute;
+  width: 9%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 238, 180, 0.85) 0%, rgba(255, 200, 100, 0.28) 38%, transparent 68%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  animation: p4-spot 4.4s ease-in-out infinite;
+}
+.p4-spots i:nth-child(2) { animation-delay: -0.9s; animation-duration: 5.1s; }
+.p4-spots i:nth-child(3) { animation-delay: -2.1s; animation-duration: 4.8s; }
+.p4-spots i:nth-child(4) { animation-delay: -3s; animation-duration: 5.6s; }
+.p4-spots i:nth-child(5) { animation-delay: -1.5s; animation-duration: 4.2s; }
+
+/* Candle flames */
+.p4-flame {
+  position: absolute;
+  width: 11%;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 140, 0.8) 0%, rgba(255, 160, 70, 0.3) 40%, transparent 70%);
+  mix-blend-mode: screen;
+  animation: p4-flicker 2.6s ease-in-out infinite;
+}
+.p4-flame--a { left: 8%; top: 30.1%; }
+.p4-flame--b { left: 5.3%; top: 86.2%; width: 14%; animation-delay: -1.3s; animation-duration: 3.1s; }
+
+/* ---------- The seam: the line where the lid meets the box ---------- */
+.p4-seam {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.p4-root.is-seam-lit .p4-seam { opacity: 1; }
+.p4-seam-glow {
+  position: absolute;
+  left: calc(var(--p4-seam-x) - 24%);
+  width: 48%;
+  top: calc(var(--p4-seam-y) - 3.1%);
+  height: 6.1%;
+  background: radial-gradient(ellipse at 50% 50%, rgba(255, 238, 178, 0.95) 0%, rgba(255, 208, 110, 0.55) 34%, transparent 70%);
+  filter: blur(3px);
+  mix-blend-mode: screen;
+}
+.p4-seam-beam {
+  position: absolute;
+  left: calc(var(--p4-seam-x) - 18%);
+  width: 36%;
+  bottom: calc(100% - var(--p4-seam-y));
+  height: 56%;
+  background: linear-gradient(to top, rgba(255, 214, 130, 0.4), rgba(255, 214, 130, 0.13) 55%, transparent);
+  filter: blur(12px);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 32%, #000 68%, transparent 100%);
+          mask-image: linear-gradient(to right, transparent 0%, #000 32%, #000 68%, transparent 100%);
+  mix-blend-mode: screen;
+}
+
+/* ---------- Layer that holds everything that comes out of the box ---------- */
+.p4-gifts {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+/* While an item is still inside the box, the gifts layer sits between the back (z 2) and the front (z 4)
+   of the box: the front wall hides the part that is inside, and the item rises out of the open mouth */
+.p4-gifts.is-sealed { z-index: 3; }
+
+/* ---------- ITEM 1: the royal scroll ---------- */
+.p4-letter {
+  position: absolute;
+  left: 0; right: 0;
+  margin-inline: auto;
+  top: var(--p4-stage-top);
+  bottom: calc(var(--p4-safe-b) + 6px);
+  width: min(calc(100% - 24px), var(--p4-letter-max-w));
+  visibility: hidden;
+  will-change: transform;
+}
+.p4-letter.is-on { visibility: visible; }
+.p4-scroll { position: absolute; inset: 0; }
+
+.p4-sheet {
+  position: absolute;
+  left: 1.6%; right: 1.6%;
+  top: calc(var(--p4-roller) * 0.5);
+  bottom: calc(var(--p4-roller) * 0.5);
+  overflow: hidden;
+  border-radius: 2px;
+  background:
+    radial-gradient(ellipse 55% 36% at 20% 16%, rgba(150, 100, 40, 0.18), transparent 70%),
+    radial-gradient(ellipse 50% 34% at 82% 80%, rgba(140, 90, 30, 0.2), transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 50%, rgba(255, 248, 222, 0.5), transparent 72%),
+    repeating-linear-gradient(0deg, rgba(120, 84, 30, 0.035) 0 2px, transparent 2px 5px),
+    linear-gradient(180deg, #e4cf98 0%, #f0e2b6 20%, #ead8a6 60%, #dac386 100%);
+  box-shadow:
+    inset 0 0 58px rgba(110, 70, 20, 0.58),
+    inset 0 0 6px rgba(80, 48, 12, 0.6),
+    0 6px 22px rgba(0, 0, 0, 0.5);
+}
+/* a fine gold-brown border, like a royal letter */
+.p4-sheet::after {
+  content: "";
+  position: absolute;
+  top: calc(var(--p4-roller) * 0.75); bottom: calc(var(--p4-roller) * 0.75);
+  left: 9px; right: 9px;
+  border: 1px solid rgba(150, 108, 40, 0.38);
+  outline: 1px solid rgba(150, 108, 40, 0.16);
+  outline-offset: 3px;
+  pointer-events: none;
+}
+
+/* The part that scrolls when the letter is long */
+.p4-reader {
+  position: absolute;
+  inset: 0;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  padding: calc(var(--p4-roller) * 0.9 + 10px) clamp(18px, 6vw, 46px) calc(var(--p4-roller) * 0.9 + 14px);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 84, 30, 0.55) transparent;
+}
+.p4-letter.is-readable .p4-reader { overflow-y: auto; }
+
+.p4-text {
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', 'Hind Siliguri', 'Kalpurush', 'Nirmala UI', 'Vrinda', 'Bangla Sangam MN', 'Noto Sans Bengali', 'FreeSerif', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(1rem, 0.86rem + 1.15vmin, 1.32rem);   /* both letters: calm size so a long letter stays readable */
+  line-height: 1.8;
+  color: #2b1a0a;
+  text-align: left;
+  overflow-wrap: break-word;
+}
+.p4-text p { margin: 0 0 0.8em; }
+.p4-text p:last-child { margin-bottom: 0; }
+
+/* Each word is fully laid out from the start; it only becomes visible when "written" */
+.p4-w {
+  display: inline-block;
+  padding: 0.3em 0.06em;
+  margin: -0.3em -0.06em;
+  opacity: 0;
+}
+.p4-w.is-done { opacity: 1; }
+
+/* Rollers (wooden core, gold ends) */
+.p4-roller {
+  position: absolute;
+  left: 0; right: 0;
+  height: var(--p4-roller);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #4a3012 0%, #b8893c 16%, #f4dc9c 38%, #d2a54f 56%, #8d6424 80%, #3d280e 100%);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.55), inset 0 -2px 3px rgba(60, 36, 8, 0.5);
+  will-change: transform;
+}
+.p4-roller::before,
+.p4-roller::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  width: calc(var(--p4-roller) * 1.45);
+  height: calc(var(--p4-roller) * 1.45);
+  translate: 0 -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #fff3c4 0%, #e3b858 36%, #a97a2c 72%, #5b3d12 100%);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.55);
+}
+.p4-roller::before { left: calc(var(--p4-roller) * -0.55); }
+.p4-roller::after  { right: calc(var(--p4-roller) * -0.55); }
+.p4-roller--top    { top: 0; }
+.p4-roller--bottom { bottom: 0; }
+
+/* ---------- ITEMS 2 and 3: portrait and hijab ---------- */
+.p4-gift {
+  margin: 0;                    /* <figure> has a default side margin */
+  position: absolute;
+  left: 0; right: 0;
+  top: var(--p4-stage-top);
+  bottom: var(--p4-content-bottom);
+  box-sizing: border-box;
+  padding: 0 16px;
+  visibility: hidden;
+}
+.p4-gift.is-on { visibility: visible; }
+.p4-gift-float {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+}
+
+/* The portrait: natural proportions, never stretched, never cropped; it only shrinks to fit */
+.p4-gift--portrait img {
+  display: block;
+  max-width: min(100%, var(--p4-gift-max-w));
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow:
+    0 0 0 1px rgba(232, 201, 135, 0.6),
+    0 0 26px rgba(232, 201, 135, 0.28),
+    0 0 80px rgba(185, 154, 207, 0.2);
+  -webkit-user-drag: none;
+}
+.p4-gift--portrait.is-shown img { animation: p4-glow 5s ease-in-out infinite alternate; }
+
+/* Shown only if assets/anika-portrait-1.jpg is missing */
+.p4-ph {
+  display: none;
+  height: min(100%, 460px);
+  max-width: min(78%, 340px);
+  aspect-ratio: 3 / 4;
+  border-radius: 999px 999px 10px 10px;
+  border: 1px solid rgba(232, 201, 135, 0.6);
+  background: radial-gradient(ellipse at 50% 38%, rgba(232, 201, 135, 0.22), rgba(120, 52, 110, 0.18) 55%, rgba(7, 10, 28, 0.2) 100%);
+  box-shadow: 0 0 40px rgba(232, 201, 135, 0.24);
+}
+.p4-gift.is-missing img { display: none; }
+.p4-gift.is-missing .p4-ph { display: block; }
+
+/* The hijab: drawn with SVG. A soft champagne back-light and a thin gold rim keep black cloth visible on the dark sky */
+.p4-gift--hijab .p4-gift-float::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(100%, 84vmin);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(232, 201, 135, 0.3) 0%, rgba(185, 154, 207, 0.12) 42%, transparent 68%);
+  pointer-events: none;
+}
+.p4-gift--hijab svg {
+  position: relative;
+  display: block;
+  height: 100%;
+  max-height: 760px;
+  width: auto;
+  max-width: min(100%, var(--p4-gift-max-w));
+  aspect-ratio: 3 / 4;
+  filter:
+    drop-shadow(0 0 1.2px rgba(255, 230, 170, 0.95))
+    drop-shadow(0 0 14px rgba(232, 201, 135, 0.34));
+}
+.p4-gift--hijab.is-shown svg { animation: p4-rim 5s ease-in-out infinite alternate; }
+
+/* ---------- Golden sparkles + the quill ---------- */
+.p4-fx {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+.p4-quill {
+  position: absolute;
+  left: 0; top: 0;
+  z-index: 6;
+  width: 90px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  will-change: transform, opacity;
+  filter: drop-shadow(0 7px 7px rgba(0, 0, 0, 0.45));
+}
+.p4-quill svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ---------- The moon: the only control ---------- */
+.p4-moon {
+  position: absolute;
+  z-index: 7;
+  top: var(--p4-moon-top);
+  left: calc(50% - var(--p4-moon-size) / 2);
+  width: var(--p4-moon-size);
+  height: var(--p4-moon-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: default;
+  filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  -webkit-appearance: none;
+  appearance: none;
+}
+.p4-moon svg { position: relative; display: block; width: 100%; height: 100%; }
+.p4-moon-halo {
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 240, 200, 0.22) 0%, rgba(232, 201, 135, 0.10) 32%, transparent 62%);
+}
+@media (orientation: landscape) {
+  .p4-root { --p4-moon-size: min(30vmin, 220px); --p4-moon-gap: clamp(8px, 2.5vh, 24px); }
+  .p4-moon { left: auto; right: 8%; }
+}
+
+/* "Ready" = the moon may be pressed. These classes do not depend on any earlier stage's CSS. */
+.p4-moon-ready { cursor: pointer; animation: p4-pulse 3.4s ease-in-out infinite; }
+.p4-moon-ready:hover {
+  filter: drop-shadow(0 0 30px rgba(255, 242, 200, 0.75)) drop-shadow(0 0 90px rgba(232, 201, 135, 0.45));
+}
+.p4-moon:focus-visible { outline: 2px solid rgba(232, 201, 135, 0.95); outline-offset: 12px; }
+.p4-moon-activate { animation: p4-activate 0.9s ease-out 1; }
+
+.p4-probe {
+  position: absolute;
+  left: 0; bottom: 0;
+  width: 1px;
+  height: env(safe-area-inset-bottom, 0px);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes p4-twinkle { from { opacity: 0.12; } to { opacity: 0.95; } }
+@keyframes p4-drift { from { transform: translate3d(-4vw, 0, 0); } to { transform: translate3d(5vw, 0, 0); } }
+@keyframes p4-pulse {
+  0%, 100% {
+    scale: 1;
+    filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  }
+  50% {
+    scale: 1.035;
+    filter: drop-shadow(0 0 34px rgba(255, 242, 200, 0.82)) drop-shadow(0 0 100px rgba(232, 201, 135, 0.5));
+  }
+}
+@keyframes p4-activate {
+  0%   { scale: 1; }
+  40%  { scale: 1.07; filter: drop-shadow(0 0 46px rgba(255, 246, 220, 1)) drop-shadow(0 0 120px rgba(232, 201, 135, 0.7)); }
+  100% { scale: 1; }
+}
+@keyframes p4-breathe { from { opacity: 0.32; } to { opacity: 0.62; } }
+@keyframes p4-sheen {
+  0%   { background-position: 130% 0, 0 0; }
+  55%, 100% { background-position: -40% 0, 0 0; }
+}
+@keyframes p4-spot {
+  0%, 100% { opacity: 0; scale: 0.7; }
+  50%      { opacity: 0.55; scale: 1; }
+}
+@keyframes p4-flicker {
+  0%, 100% { opacity: 0.55; scale: 1; }
+  30%      { opacity: 0.85; scale: 1.06; }
+  60%      { opacity: 0.62; scale: 0.96; }
+}
+@keyframes p4-glow {
+  from { box-shadow: 0 0 0 1px rgba(232, 201, 135, 0.45), 0 0 20px rgba(232, 201, 135, 0.18), 0 0 60px rgba(185, 154, 207, 0.12); }
+  to   { box-shadow: 0 0 0 1px rgba(232, 201, 135, 0.7),  0 0 34px rgba(232, 201, 135, 0.36), 0 0 96px rgba(185, 154, 207, 0.22); }
+}
+@keyframes p4-rim {
+  from { filter: drop-shadow(0 0 1px rgba(255, 230, 170, 0.8))  drop-shadow(0 0 10px rgba(232, 201, 135, 0.24)); }
+  to   { filter: drop-shadow(0 0 1.6px rgba(255, 236, 190, 1)) drop-shadow(0 0 22px rgba(232, 201, 135, 0.42)); }
+}
+
+/* ---------- Reduced motion: the same order of events, with gentler visuals ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .p4-star, .p4-cloud, .p4-moon-ready, .p4-moon-activate,
+  .p4-spots i, .p4-flame,
+  .p4-gift--portrait.is-shown img, .p4-gift--hijab.is-shown svg { animation: none; }
+  .p4-star { opacity: 0.55; }
+  .p4-spots i { opacity: 0.25; }
+  .p4-flame { opacity: 0.6; }
+}
+
+/* =====================================================================
+   STAGE 4 – PART 2   (chocolate, pen, final letter, cinematic ending)
+   Every class and id here starts with "p4p2-". Part 1 (phase4.css) is not changed.
+   Part 2 re-uses Part 1's .p4-gift / .p4-gift-float / .p4-letter classes for the
+   parts that must look and behave exactly the same (placement, sealed-in-box layering).
+   ===================================================================== */
+
+#p4-root {
+  --p4p2-gift-w: min(100%, 520px);            /* widest a Part 2 gift may become */
+  --p4p2-gold: #f3d995;
+  --p4p2-gold-soft: rgba(243, 217, 149, 0.55);
+}
+
+/* ---------- Gift 1 and 2: Dairy Milk and the pen ---------- */
+.p4p2-gift img {
+  display: block;
+  max-width: var(--p4p2-gift-w);
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* Dairy Milk: soft purple-gold rim light that follows the real edge of the wrapper */
+.p4p2-gift--choc img {
+  filter:
+    drop-shadow(0 0 1px rgba(255, 228, 160, 0.9))
+    drop-shadow(0 0 16px rgba(176, 130, 235, 0.5))
+    drop-shadow(0 0 44px rgba(232, 201, 135, 0.22));
+}
+.p4p2-gift--choc.is-shown img { animation: p4p2-breathe 5.2s ease-in-out infinite alternate; }
+
+/* Pen: black body, so it needs a champagne back-light and a thin gold rim to stay visible on the dark sky */
+.p4p2-gift--pen .p4-gift-float::before {
+  content: "";
+  position: absolute;
+  left: 50%; top: 50%;
+  width: min(100%, 86vmin);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(243, 217, 149, 0.30) 0%, rgba(176, 130, 235, 0.14) 42%, transparent 68%);
+  pointer-events: none;
+}
+.p4p2-gift--pen img {
+  position: relative;
+  filter:
+    drop-shadow(0 0 1.2px rgba(255, 232, 170, 0.95))
+    drop-shadow(0 0 14px rgba(243, 217, 149, 0.34))
+    drop-shadow(0 0 40px rgba(176, 130, 235, 0.18));
+}
+.p4p2-gift--pen.is-shown img { animation: p4p2-sway 6.5s ease-in-out infinite alternate; }
+
+/* Shown only if the picture file is missing */
+.p4p2-ph {
+  display: none;
+  height: min(100%, 420px);
+  aspect-ratio: 1 / 2.2;
+  max-width: 60%;
+  border-radius: 10px;
+  border: 1px solid var(--p4p2-gold-soft);
+  background: radial-gradient(ellipse at 50% 40%, rgba(243, 217, 149, 0.2), rgba(120, 52, 110, 0.18) 60%, rgba(7, 10, 28, 0.2) 100%);
+  box-shadow: 0 0 40px rgba(243, 217, 149, 0.2);
+}
+.p4p2-gift.is-missing img { display: none; }
+.p4p2-gift.is-missing .p4p2-ph { display: block; }
+
+@keyframes p4p2-breathe {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-5px); }
+}
+@keyframes p4p2-sway {
+  from { transform: rotate(-1.8deg) translateY(0); }
+  to   { transform: rotate(1.8deg) translateY(-5px); }
+}
+
+/* ---------- The moon after the story is over ---------- */
+.p4p2-moon-off,
+.p4p2-moon-off:hover {
+  cursor: default !important;
+  animation: none !important;
+  pointer-events: none;
+}
+
+/* ---------- Ending: layers ---------- */
+/* "under" sits between the back (z 2) and the front (z 4) of the box, so light really comes out of the open mouth */
+.p4p2-under {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+/* "over" holds the particles and the message; below the moon (z 7) */
+.p4p2-over {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+}
+
+.p4p2-halo {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 55%, rgba(255, 214, 130, 0.5) 0%, rgba(240, 170, 90, 0.2) 40%, transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 2s ease;
+  filter: blur(6px);
+}
+.p4p2-halo.is-on { opacity: 1; }
+.p4p2-halo.is-calm { opacity: 0.7; }
+
+.p4p2-beam {
+  position: absolute;
+  opacity: 0;
+  mix-blend-mode: screen;
+  /* a narrow trapezoid that opens a little towards the sky and fades out */
+  clip-path: polygon(38% 100%, 62% 100%, 100% 0, 0 0);
+  background: linear-gradient(0deg, rgba(255, 236, 170, 0.95) 0%, rgba(255, 214, 130, 0.5) 38%, rgba(255, 200, 110, 0.14) 78%, transparent 100%);
+  filter: blur(5px);
+  will-change: clip-path, opacity;
+}
+.p4p2-beam-core {
+  position: absolute;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background: linear-gradient(0deg, rgba(255, 250, 225, 0.95) 0%, rgba(255, 226, 150, 0.4) 45%, transparent 100%);
+  filter: blur(2px);
+  will-change: clip-path, opacity;
+}
+
+/* The ornaments on the box glow while the ending begins */
+.p4-root.p4p2-ornaments .p4-spots i {
+  animation: p4p2-spot 2.8s ease-in-out infinite;
+}
+.p4-root.p4p2-ornaments.p4p2-ornaments-calm .p4-spots i { animation-duration: 4.6s; }
+@keyframes p4p2-spot {
+  0%, 100% { opacity: 0.35; scale: 0.9; }
+  50%      { opacity: 1;    scale: 1.35; }
+}
+
+.p4p2-fx {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ---------- Ending: the message ---------- */
+.p4p2-msg {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 4px;
+  visibility: hidden;
+  overflow-wrap: break-word;
+  color: #f6e4b0;
+  --p4p2-fs: 18px;
+}
+.p4p2-msg.is-laid-out { visibility: visible; }
+
+.p4p2-line {
+  margin: 0;
+  opacity: 0;
+  filter: blur(7px);
+  transform: translateY(6px);
+  transition: opacity 1.5s ease, filter 1.5s ease, transform 1.5s ease;
+  text-shadow: 0 0 14px rgba(255, 210, 120, 0.55), 0 0 34px rgba(255, 190, 90, 0.3), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+.p4p2-line.is-in { opacity: 1; filter: blur(0); transform: none; }
+
+.p4p2-line--title {
+  font-family: 'Great Vibes', 'Cormorant Garamond', 'Snell Roundhand', 'Brush Script MT', cursive, serif;
+  font-weight: 400;
+  font-size: calc(var(--p4p2-fs) * 2.5);
+  line-height: 1.12;
+  letter-spacing: 0.02em;
+  color: #fbe9b8;
+}
+.p4p2-line--sub,
+.p4p2-line--wish {
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  font-size: var(--p4p2-fs);
+  line-height: 1.4;
+  letter-spacing: 0.015em;
+}
+.p4p2-line--sub { margin-top: 0.5em; font-style: italic; }
+.p4p2-line--wish { margin-top: 0.4em; }
+
+.p4p2-star {
+  display: inline-block;
+  width: 0.95em;
+  height: 0.95em;
+  margin-left: 0.28em;
+  vertical-align: -0.12em;
+  filter: drop-shadow(0 0 5px rgba(255, 214, 130, 0.9));
+}
+.p4p2-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .p4p2-gift--choc.is-shown img,
+  .p4p2-gift--pen.is-shown img { animation: none; }
+  .p4-root.p4p2-ornaments .p4-spots i { animation: none; opacity: 0.8; }
+  .p4p2-line { transition-duration: 0.9s; filter: none; transform: none; }
+}
