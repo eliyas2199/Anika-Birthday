@@ -1,0 +1,506 @@
+:root {
+  --bg: #080812;
+  --bg-2: #11101D;
+  --ivory: #F5E5DE;
+  --blush: #E9B9CB;
+  --lavender: #B99ACF;
+  --plum: #542747;
+  --gold: #E8C987;
+  --gold-dark: #A87532;
+
+  --fade-delay: 1.4s;
+  --fade-time: 3.6s;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 46%, rgba(84, 39, 71, 0.55) 0%, rgba(17, 16, 29, 0.9) 55%, transparent 100%),
+    radial-gradient(ellipse at 50% 40%, var(--bg-2) 0%, var(--bg) 70%);
+  background-color: var(--bg);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  touch-action: none;
+}
+
+/* ---------- Stage ---------- */
+.stage {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding:
+    max(env(safe-area-inset-top), 8px)
+    max(env(safe-area-inset-right), 8px)
+    max(env(safe-area-inset-bottom), 8px)
+    max(env(safe-area-inset-left), 8px);
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(0.97);
+  pointer-events: none;
+}
+
+/* Soft warm glow behind the cake */
+.stage::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 55% 50% at 50% 50%,
+    rgba(232, 201, 135, 0.16) 0%,
+    rgba(185, 154, 207, 0.08) 38%,
+    transparent 70%
+  );
+}
+
+/* ---------- Cake ---------- */
+#cake {
+  --h: 94vh;
+  position: relative;
+  display: block;
+  width: min(94vw, calc(var(--h) * 0.9459), 780px);
+  height: auto;
+  aspect-ratio: 700 / 740;
+  overflow: visible;
+}
+
+@supports (height: 100dvh) {
+  #cake { --h: 94dvh; }
+}
+
+/* ---------- SVG text ---------- */
+.numeral {
+  font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  font-size: 31px;
+  font-weight: 600;
+  fill: #9C6A28;
+  text-anchor: middle;
+}
+
+.cake-name {
+  font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  font-size: 25px;
+  font-style: italic;
+  font-weight: 500;
+  letter-spacing: 2px;
+  fill: #A06A83;
+  fill-opacity: 0.92;
+}
+
+/* ---------- Moon click: intro -> cake ---------- */
+body.is-running .stage {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+}
+
+body.is-running .intro {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+}
+
+/* ---------- Phase 1 ending: graceful dissolve ---------- */
+body.is-midnight .stage {
+  opacity: 0;
+  transform: scale(1.03);
+  transition:
+    opacity var(--fade-time) ease var(--fade-delay),
+    transform var(--fade-time) ease var(--fade-delay);
+}
+
+body.is-complete .stage {
+  visibility: hidden;
+}
+
+/* ---------- Intro ---------- */
+.intro {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(28px, 6vh, 56px);
+  padding:
+    max(env(safe-area-inset-top), 16px)
+    max(env(safe-area-inset-right), 16px)
+    max(env(safe-area-inset-bottom), 16px)
+    max(env(safe-area-inset-left), 16px);
+  animation: intro-in 1.8s ease backwards;
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #FFF4DA;
+  opacity: 0.2;
+  animation: twinkle var(--d) ease-in-out var(--delay) infinite alternate;
+}
+
+.moon-btn {
+  position: relative;
+  display: block;
+  width: min(46vmin, 280px);
+  aspect-ratio: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  filter: drop-shadow(0 0 26px rgba(232, 201, 135, 0.45)) drop-shadow(0 0 80px rgba(185, 154, 207, 0.25));
+  animation: moon-float 7s ease-in-out infinite, moon-glow 4s ease-in-out infinite alternate;
+  transition: transform 0.35s ease;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.moon-btn svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* generous tap area on small phones */
+.moon-btn::after {
+  content: "";
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+}
+
+.moon-btn:hover,
+.moon-btn:active {
+  transform: scale(1.04);
+}
+
+.moon-btn:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 10px;
+}
+
+.intro-text {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: center;
+  font-family: "Cormorant Garamond", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  font-style: italic;
+  font-size: clamp(18px, 4.6vw, 26px);
+  line-height: 1.4;
+  letter-spacing: 0.6px;
+  color: var(--blush);
+  text-shadow: 0 0 18px rgba(233, 185, 203, 0.35);
+  animation: text-pulse 3.6s ease-in-out infinite alternate;
+}
+
+.intro-text span:last-child {
+  color: var(--gold);
+  font-size: 0.92em;
+}
+
+@keyframes intro-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes moon-float {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -10px; }
+}
+
+@keyframes moon-glow {
+  from { filter: drop-shadow(0 0 20px rgba(232, 201, 135, 0.32)) drop-shadow(0 0 60px rgba(185, 154, 207, 0.18)); }
+  to   { filter: drop-shadow(0 0 34px rgba(232, 201, 135, 0.58)) drop-shadow(0 0 96px rgba(185, 154, 207, 0.32)); }
+}
+
+@keyframes twinkle {
+  from { opacity: 0.12; }
+  to   { opacity: 0.9; }
+}
+
+@keyframes text-pulse {
+  from { opacity: 0.72; }
+  to   { opacity: 1; }
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .moon-btn,
+  .star,
+  .intro-text {
+    animation: none;
+  }
+
+  .star { opacity: 0.5; }
+
+  body.is-running .stage,
+  body.is-midnight .stage {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   PHASE 2 (unchanged)
+   ========================================================= */
+/* =========================================================
+   PHASE 2 — all selectors are prefixed with "p2-" so this file
+   can later be merged with Phase 1 without name clashes.
+   ========================================================= */
+:root {
+  --p2-bg: #070a1c;
+  --p2-plum: #2a1237;
+  --p2-gold: #E8C987;
+  --p2-blush: #E9B9CB;
+}
+
+.p2-body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--p2-bg);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+html { height: 100%; background: var(--p2-bg); }
+
+.p2-root {
+  --p2-moon-size: min(40vmin, 240px);
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: var(--p2-bg);
+}
+
+/* ---------- Sky ---------- */
+.p2-sky {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 45% at 50% 108%, rgba(120, 52, 110, 0.55) 0%, rgba(60, 24, 70, 0.28) 45%, transparent 75%),
+    linear-gradient(180deg, #04050f 0%, #080b22 34%, #130f2e 66%, #24112f 100%);
+}
+
+.p2-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.p2-star {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 50%;
+  background: #FFF4DA;
+  opacity: 0.25;
+  animation: p2-twinkle var(--d) ease-in-out var(--delay) infinite alternate;
+}
+
+.p2-star--big {
+  box-shadow: 0 0 6px 1px rgba(255, 238, 200, 0.55);
+}
+
+.p2-clouds {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.p2-cloud {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  filter: blur(22px);
+  background: radial-gradient(ellipse at 50% 50%, rgba(138, 104, 178, 0.22), rgba(90, 60, 130, 0.10) 55%, transparent 75%);
+  animation: p2-drift 70s ease-in-out infinite alternate;
+}
+.p2-cloud--a { width: 70vw; height: 16vh; left: -12vw; top: 46%; }
+.p2-cloud--b { width: 60vw; height: 14vh; right: -14vw; top: 66%; animation-duration: 90s; animation-direction: alternate-reverse; }
+.p2-cloud--c { width: 80vw; height: 18vh; left: 8vw; top: 82%; animation-duration: 80s; }
+
+/* ---------- Moon ---------- */
+.p2-moon {
+  position: absolute;
+  z-index: 2;
+  top: 7%;
+  left: calc(50% - var(--p2-moon-size) / 2);
+  width: var(--p2-moon-size);
+  height: var(--p2-moon-size);
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  cursor: default;
+  /* JS drives --p2-rise (px). Until Phase 2 starts it sits below the screen. */
+  transform: translate3d(0, var(--p2-rise, 120vh), 0);
+  filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  -webkit-appearance: none;
+  appearance: none;
+  will-change: transform;
+}
+
+.p2-moon svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.p2-moon-halo {
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 240, 200, 0.22) 0%, rgba(232, 201, 135, 0.10) 32%, transparent 62%);
+}
+
+@media (orientation: landscape) {
+  .p2-root { --p2-moon-size: min(30vmin, 220px); }
+  .p2-moon {
+    left: auto;
+    right: 8%;
+    top: 7%;
+  }
+}
+
+/* The moon only becomes a "switch" after the reveal is complete */
+.p2-moon.is-ready {
+  cursor: pointer;
+  animation: p2-pulse 3.4s ease-in-out infinite;
+}
+
+.p2-moon.is-ready:hover {
+  filter: drop-shadow(0 0 30px rgba(255, 242, 200, 0.75)) drop-shadow(0 0 90px rgba(232, 201, 135, 0.45));
+}
+
+.p2-moon:focus-visible {
+  outline: 2px solid rgba(232, 201, 135, 0.95);
+  outline-offset: 12px;
+}
+
+.p2-moon.is-activated {
+  animation: p2-activate 0.9s ease-out 1;
+}
+
+/* ---------- Canvas ---------- */
+.p2-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  height: 100%;
+  display: block;
+  pointer-events: none;
+}
+
+/* Visually hidden heading for screen readers */
+.p2-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes p2-twinkle {
+  from { opacity: 0.12; }
+  to   { opacity: 0.95; }
+}
+
+@keyframes p2-drift {
+  from { transform: translate3d(-4vw, 0, 0); }
+  to   { transform: translate3d(5vw, 0, 0); }
+}
+
+@keyframes p2-pulse {
+  0%, 100% {
+    scale: 1;
+    filter: drop-shadow(0 0 22px rgba(255, 238, 190, 0.5)) drop-shadow(0 0 70px rgba(232, 201, 135, 0.28));
+  }
+  50% {
+    scale: 1.035;
+    filter: drop-shadow(0 0 34px rgba(255, 242, 200, 0.82)) drop-shadow(0 0 100px rgba(232, 201, 135, 0.5));
+  }
+}
+
+@keyframes p2-activate {
+  0%   { scale: 1; }
+  40%  { scale: 1.07; filter: drop-shadow(0 0 46px rgba(255, 246, 220, 1)) drop-shadow(0 0 120px rgba(232, 201, 135, 0.7)); }
+  100% { scale: 1; }
+}
+
+/* ---------- Reduced motion ---------- */
+.p2-root.is-reduced .p2-moon {
+  transform: none;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+.p2-root.is-reduced.is-started .p2-moon { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .p2-star, .p2-cloud, .p2-moon.is-ready, .p2-moon.is-activated { animation: none; }
+  .p2-star { opacity: 0.55; }
+}
+
+
+/* =========================================================
+   MERGE GLUE — Phase 2 stays hidden until Phase 1 has finished
+   ========================================================= */
+.p2-root[data-embedded] {
+  visibility: hidden;
+  opacity: 0;
+}
+
+body.is-phase2 .p2-root[data-embedded] {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 1.4s ease;
+}
+
+/* no hidden animation work before Phase 2 starts */
+.p2-root:not(.is-started) .p2-star,
+.p2-root:not(.is-started) .p2-cloud {
+  animation-play-state: paused;
+}

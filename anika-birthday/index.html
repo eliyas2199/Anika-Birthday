@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#080812">
+  <title>A Little World for Anika</title>
+  <!-- Calligraphy fonts for Phase 2 (script falls back to system cursive fonts if offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Parisienne&display=swap" rel="stylesheet">
+  <!-- Fonts for Stage 4 (Bengali letter + the ending). Falls back to system fonts if offline. -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Bengali:wght@400;600&family=Cormorant+Garamond:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./phase3.css">
+  <link rel="stylesheet" href="./phase4.css">
+  <link rel="stylesheet" href="./stage-link.css">
+</head>
+<body>
+  <!-- Intro: the moon is the one tap that unlocks audio for the whole experience -->
+  <section class="intro" id="intro">
+    <div class="stars" id="stars" aria-hidden="true"></div>
+
+    <button class="moon-btn" id="moon" type="button" aria-label="Click the moon to begin">
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="moonGrad" cx=".36" cy=".32" r=".85">
+            <stop offset="0" stop-color="#FFFCF2"/>
+            <stop offset=".55" stop-color="#F6EBCB"/>
+            <stop offset="1" stop-color="#D3BE8A"/>
+          </radialGradient>
+          <radialGradient id="moonShade" cx=".5" cy=".5" r=".5">
+            <stop offset=".72" stop-color="#6E5A2E" stop-opacity="0"/>
+            <stop offset="1" stop-color="#6E5A2E" stop-opacity=".28"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#moonGrad)"/>
+        <g fill="#B9A267" fill-opacity=".30">
+          <circle cx="68" cy="72" r="17"/>
+          <circle cx="126" cy="64" r="9"/>
+          <circle cx="132" cy="116" r="21"/>
+          <circle cx="82" cy="132" r="11"/>
+          <circle cx="104" cy="94" r="6"/>
+          <circle cx="58" cy="108" r="6"/>
+        </g>
+        <g fill="#FFFFFF" fill-opacity=".35">
+          <circle cx="63" cy="68" r="8"/>
+          <circle cx="126" cy="110" r="9"/>
+        </g>
+        <circle cx="100" cy="100" r="92" fill="url(#moonShade)"/>
+      </svg>
+    </button>
+
+    <p class="intro-text">
+      <span>Hey moon, you look like a moon.</span>
+      <span>Please click the moon.</span>
+    </p>
+  </section>
+
+  <main class="stage" id="stage">
+    <svg id="cake" viewBox="0 0 700 740" xmlns="http://www.w3.org/2000/svg"
+         role="img" aria-label="An ornate birthday cake with an analog clock face">
+      <defs>
+        <!-- Plate -->
+        <linearGradient id="plateGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#F6DFA6"/>
+          <stop offset=".35" stop-color="#C99A4E"/>
+          <stop offset=".62" stop-color="#8E5F28"/>
+          <stop offset="1" stop-color="#E8C987"/>
+        </linearGradient>
+        <radialGradient id="plateInner" cx=".5" cy=".42" r=".65">
+          <stop offset="0" stop-color="#2B1D35"/>
+          <stop offset="1" stop-color="#120E1C"/>
+        </radialGradient>
+
+        <!-- Cake side + ribbon -->
+        <linearGradient id="sideGrad" gradientUnits="userSpaceOnUse" x1="90" y1="0" x2="610" y2="0">
+          <stop offset="0" stop-color="#C79BB3"/>
+          <stop offset=".25" stop-color="#E9C3D2"/>
+          <stop offset=".5" stop-color="#F3D9DE"/>
+          <stop offset=".75" stop-color="#E2B5C8"/>
+          <stop offset="1" stop-color="#B58AA3"/>
+        </linearGradient>
+        <linearGradient id="sideShade" gradientUnits="userSpaceOnUse" x1="0" y1="320" x2="0" y2="640">
+          <stop offset="0" stop-color="#3A1030" stop-opacity="0"/>
+          <stop offset=".6" stop-color="#3A1030" stop-opacity=".12"/>
+          <stop offset="1" stop-color="#3A1030" stop-opacity=".42"/>
+        </linearGradient>
+        <linearGradient id="ribbonGrad" gradientUnits="userSpaceOnUse" x1="90" y1="0" x2="610" y2="0">
+          <stop offset="0" stop-color="#3E1538"/>
+          <stop offset=".3" stop-color="#7A3C6B"/>
+          <stop offset=".5" stop-color="#5E2754"/>
+          <stop offset=".7" stop-color="#7A3C6B"/>
+          <stop offset="1" stop-color="#3A1334"/>
+        </linearGradient>
+        <linearGradient id="bowGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#8F4A7E"/>
+          <stop offset=".55" stop-color="#5A2350"/>
+          <stop offset="1" stop-color="#3A1436"/>
+        </linearGradient>
+        <clipPath id="sideClip">
+          <rect x="90" y="320" width="520" height="60"/>
+          <circle cx="350" cy="380" r="260"/>
+        </clipPath>
+
+        <!-- Cake top + clock face -->
+        <radialGradient id="topGrad" cx=".4" cy=".32" r=".85">
+          <stop offset="0" stop-color="#FFF6F0"/>
+          <stop offset=".5" stop-color="#F5E5DE"/>
+          <stop offset="1" stop-color="#E8C9CF"/>
+        </radialGradient>
+        <radialGradient id="faceGrad" cx=".42" cy=".35" r=".85">
+          <stop offset="0" stop-color="#FFFAF5"/>
+          <stop offset=".55" stop-color="#FBEFE8"/>
+          <stop offset="1" stop-color="#EFD7D2"/>
+        </radialGradient>
+        <radialGradient id="faceShade" cx=".5" cy=".5" r=".5">
+          <stop offset=".8" stop-color="#6E3C50" stop-opacity="0"/>
+          <stop offset="1" stop-color="#6E3C50" stop-opacity=".22"/>
+        </radialGradient>
+        <radialGradient id="topLight" cx=".3" cy=".22" r=".75">
+          <stop offset="0" stop-color="#FFF0D7" stop-opacity=".42"/>
+          <stop offset="1" stop-color="#FFF0D7" stop-opacity="0"/>
+        </radialGradient>
+
+        <!-- Piping -->
+        <radialGradient id="pipePink" cx=".45" cy=".4" r=".7">
+          <stop offset="0" stop-color="#F7CEDB"/>
+          <stop offset=".6" stop-color="#E9B9CB"/>
+          <stop offset="1" stop-color="#CF93AE"/>
+        </radialGradient>
+        <radialGradient id="pipeLav" cx=".45" cy=".4" r=".7">
+          <stop offset="0" stop-color="#DCC7EC"/>
+          <stop offset=".6" stop-color="#B99ACF"/>
+          <stop offset="1" stop-color="#9573B2"/>
+        </radialGradient>
+
+        <!-- Flowers -->
+        <radialGradient id="rosePlum" cx=".4" cy=".35" r=".75">
+          <stop offset="0" stop-color="#9A4B8A"/>
+          <stop offset=".55" stop-color="#6B2D5E"/>
+          <stop offset="1" stop-color="#3E1738"/>
+        </radialGradient>
+        <radialGradient id="roseIvory" cx=".4" cy=".35" r=".75">
+          <stop offset="0" stop-color="#FFFBF1"/>
+          <stop offset=".55" stop-color="#F5E5DE"/>
+          <stop offset="1" stop-color="#D9BFB4"/>
+        </radialGradient>
+        <radialGradient id="blossomPink" cx=".5" cy=".5" r=".6">
+          <stop offset="0" stop-color="#FFE9F1"/>
+          <stop offset=".6" stop-color="#F1B8CD"/>
+          <stop offset="1" stop-color="#D98EAE"/>
+        </radialGradient>
+        <radialGradient id="blossomLav" cx=".5" cy=".5" r=".6">
+          <stop offset="0" stop-color="#EBDDF5"/>
+          <stop offset=".6" stop-color="#C9AEE0"/>
+          <stop offset="1" stop-color="#A586C4"/>
+        </radialGradient>
+        <linearGradient id="leafGold" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#F3DB9C"/>
+          <stop offset=".5" stop-color="#C99A4E"/>
+          <stop offset="1" stop-color="#8A5A25"/>
+        </linearGradient>
+        <radialGradient id="pearl" cx=".35" cy=".3" r=".75">
+          <stop offset="0" stop-color="#FFFFFF"/>
+          <stop offset=".5" stop-color="#F5E5DE"/>
+          <stop offset="1" stop-color="#C9A79C"/>
+        </radialGradient>
+
+        <!-- Hands + pivot -->
+        <linearGradient id="handGold" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stop-color="#8E5F28"/>
+          <stop offset=".45" stop-color="#F3DB9C"/>
+          <stop offset=".6" stop-color="#E8C987"/>
+          <stop offset="1" stop-color="#A87532"/>
+        </linearGradient>
+        <radialGradient id="pivotGrad" cx=".35" cy=".3" r=".8">
+          <stop offset="0" stop-color="#FFF1C2"/>
+          <stop offset=".4" stop-color="#E8C987"/>
+          <stop offset=".8" stop-color="#A87532"/>
+          <stop offset="1" stop-color="#6E4519"/>
+        </radialGradient>
+
+        <!-- Filters -->
+        <filter id="topShadow" x="-10%" y="-10%" width="120%" height="125%">
+          <feDropShadow dx="0" dy="7" stdDeviation="6" flood-color="#000" flood-opacity=".4"/>
+        </filter>
+        <filter id="handShadow" filterUnits="userSpaceOnUse" x="150" y="100" width="400" height="400">
+          <feDropShadow dx="1.5" dy="3" stdDeviation="2.2" flood-color="#3A1A10" flood-opacity=".45"/>
+        </filter>
+        <filter id="softBlur" x="-20%" y="-60%" width="140%" height="220%">
+          <feGaussianBlur stdDeviation="14"/>
+        </filter>
+
+        <!-- Bow (left half, mirrored for the right half) -->
+        <g id="bowHalf">
+          <path d="M347 614 L318 672 L336 666 L342 684 L354 622 Z"
+                fill="url(#bowGrad)" stroke="#C99A4E" stroke-width=".8" stroke-linejoin="round"/>
+          <path d="M350 609 C318 580 262 580 258 606 C256 636 316 640 350 609 Z"
+                fill="url(#bowGrad)" stroke="#C99A4E" stroke-width=".9" stroke-linejoin="round"/>
+          <path d="M346 609 C322 602 292 603 272 609" fill="none"
+                stroke="#1F0A1D" stroke-opacity=".4" stroke-width="1.4" stroke-linecap="round"/>
+          <path d="M340 600 C318 588 282 588 268 598" fill="none"
+                stroke="#E9B9CB" stroke-opacity=".35" stroke-width="1.2" stroke-linecap="round"/>
+        </g>
+      </defs>
+
+      <!-- Plate + shadow -->
+      <g id="plate">
+        <circle cx="350" cy="380" r="322" fill="#6B4520"/>
+        <circle cx="350" cy="372" r="322" fill="url(#plateGold)"/>
+        <circle cx="350" cy="372" r="311" fill="url(#plateInner)"/>
+        <circle cx="350" cy="372" r="311" fill="none" stroke="#E8C987" stroke-opacity=".55" stroke-width=".8"/>
+      </g>
+      <ellipse cx="350" cy="642" rx="282" ry="26" fill="#000" fill-opacity=".55" filter="url(#softBlur)"/>
+
+      <!-- Cake side -->
+      <g id="cake-side">
+        <rect x="90" y="320" width="520" height="60" fill="url(#sideGrad)"/>
+        <circle cx="350" cy="380" r="260" fill="url(#sideGrad)"/>
+        <g clip-path="url(#sideClip)">
+          <circle cx="350" cy="362" r="260" fill="url(#ribbonGrad)"/>
+          <rect x="90" y="336" width="520" height="26" fill="url(#ribbonGrad)"/>
+          <circle cx="350" cy="336" r="260" fill="url(#sideGrad)"/>
+          <rect x="90" y="320" width="520" height="60" fill="url(#sideShade)"/>
+          <circle cx="350" cy="380" r="260" fill="url(#sideShade)"/>
+        </g>
+        <path d="M610 336 A260 260 0 0 1 90 336 M610 362 A260 260 0 0 1 90 362"
+              fill="none" stroke="#D9B15F" stroke-width="1" stroke-opacity=".9"/>
+        <g id="side-deco"></g>
+      </g>
+
+      <!-- Cake top -->
+      <g id="cake-top" filter="url(#topShadow)">
+        <circle cx="350" cy="320" r="260" fill="url(#topGrad)"/>
+        <circle cx="350" cy="320" r="259" fill="none" stroke="#fff" stroke-opacity=".28" stroke-width="1"/>
+        <circle cx="350" cy="320" r="222" fill="none" stroke="#B87A94" stroke-opacity=".18" stroke-width="14"/>
+        <g id="piping"></g>
+
+        <g id="face">
+          <circle cx="350" cy="320" r="210" fill="none" stroke="#6E3C50" stroke-opacity=".25" stroke-width="4"/>
+          <circle cx="350" cy="320" r="206" fill="url(#faceGrad)" stroke="#C99A4E" stroke-width="2"/>
+          <circle cx="350" cy="320" r="199" fill="none" stroke="#D9B15F" stroke-width=".7" stroke-opacity=".9"/>
+          <circle cx="350" cy="320" r="206" fill="url(#faceShade)"/>
+          <g id="marks"></g>
+          <g id="numerals"></g>
+          <text id="name" class="cake-name" x="350" y="418" text-anchor="middle">Anika</text>
+        </g>
+
+        <g id="ornaments"></g>
+        <g id="leaves"></g>
+        <g id="flowers"></g>
+        <g id="pearls"></g>
+        <circle cx="350" cy="320" r="260" fill="url(#topLight)" pointer-events="none"/>
+      </g>
+
+      <!-- Bow -->
+      <g id="bow">
+        <use href="#bowHalf"/>
+        <use href="#bowHalf" transform="translate(700 0) scale(-1 1)"/>
+        <ellipse cx="350" cy="611" rx="15" ry="13" fill="url(#bowGrad)" stroke="#C99A4E" stroke-width=".9"/>
+        <circle cx="350" cy="611" r="6" fill="url(#pearl)" stroke="#A87532" stroke-width=".5"/>
+        <circle cx="341" cy="606" r="3.2" fill="url(#pearl)" stroke="#A87532" stroke-width=".4"/>
+        <circle cx="359" cy="606" r="3.2" fill="url(#pearl)" stroke="#A87532" stroke-width=".4"/>
+        <circle cx="341" cy="617" r="3.2" fill="url(#pearl)" stroke="#A87532" stroke-width=".4"/>
+        <circle cx="359" cy="617" r="3.2" fill="url(#pearl)" stroke="#A87532" stroke-width=".4"/>
+      </g>
+
+      <!-- Clock hands: shared pivot (350, 320) -->
+      <g id="hands" filter="url(#handShadow)">
+        <g id="hourHand" transform="rotate(0 350 320)">
+          <path d="M350 226 L361 262 L356 290 L357 322 L350 342 L343 322 L344 290 L339 262 Z"
+                fill="url(#handGold)" stroke="#6B4318" stroke-width="1" stroke-linejoin="round"/>
+          <path d="M350 236 L350 318" stroke="#FFF1C2" stroke-opacity=".55" stroke-width="1" stroke-linecap="round"/>
+        </g>
+        <g id="minuteHand" transform="rotate(0 350 320)">
+          <path d="M350 186 L355 214 L352.5 240 L353.5 322 L350 346 L346.5 322 L347.5 240 L345 214 Z"
+                fill="url(#handGold)" stroke="#6B4318" stroke-width="1" stroke-linejoin="round"/>
+          <path d="M350 196 L350 318" stroke="#FFF1C2" stroke-opacity=".55" stroke-width=".9" stroke-linecap="round"/>
+        </g>
+        <circle id="pivot" cx="350" cy="320" r="11" fill="url(#pivotGrad)" stroke="#6B4318" stroke-width="1"/>
+        <circle cx="350" cy="320" r="3.6" fill="#6E4519"/>
+        <circle cx="348" cy="318" r="1.4" fill="#FFF1C2" fill-opacity=".8"/>
+      </g>
+    </svg>
+  </main>
+
+
+  <!-- ================= PHASE 2 (hidden until Phase 1 ends) ================= -->
+  <main class="p2-root" id="p2-root" data-embedded>
+    <div class="p2-sky" aria-hidden="true"></div>
+    <div class="p2-stars" id="p2-stars" aria-hidden="true"></div>
+    <div class="p2-clouds" aria-hidden="true">
+      <i class="p2-cloud p2-cloud--a"></i>
+      <i class="p2-cloud p2-cloud--b"></i>
+      <i class="p2-cloud p2-cloud--c"></i>
+    </div>
+
+    <!-- The moon: rises first, stays forever, becomes the "next stage" switch at the very end -->
+    <button class="p2-moon" id="p2-moon" type="button" disabled tabindex="-1" aria-label="The moon">
+      <span class="p2-moon-halo" aria-hidden="true"></span>
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="p2MoonGrad" cx=".36" cy=".32" r=".85">
+            <stop offset="0" stop-color="#FFFCF2"/>
+            <stop offset=".55" stop-color="#F6EBCB"/>
+            <stop offset="1" stop-color="#D3BE8A"/>
+          </radialGradient>
+          <radialGradient id="p2MoonShade" cx=".5" cy=".5" r=".5">
+            <stop offset=".72" stop-color="#6E5A2E" stop-opacity="0"/>
+            <stop offset="1" stop-color="#6E5A2E" stop-opacity=".28"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#p2MoonGrad)"/>
+        <g fill="#B9A267" fill-opacity=".30">
+          <circle cx="68" cy="72" r="17"/>
+          <circle cx="126" cy="64" r="9"/>
+          <circle cx="132" cy="116" r="21"/>
+          <circle cx="82" cy="132" r="11"/>
+          <circle cx="104" cy="94" r="6"/>
+          <circle cx="58" cy="108" r="6"/>
+        </g>
+        <g fill="#FFFFFF" fill-opacity=".35">
+          <circle cx="63" cy="68" r="8"/>
+          <circle cx="126" cy="110" r="9"/>
+        </g>
+        <circle cx="100" cy="100" r="92" fill="url(#p2MoonShade)"/>
+      </svg>
+    </button>
+
+    <!-- Fireworks, rocket and the particle lettering are drawn here -->
+    <canvas class="p2-canvas" id="p2-canvas" aria-hidden="true"></canvas>
+
+    <h1 class="p2-sr">Happy Birthday Anika</h1>
+  </main>
+
+
+  <!-- STAGE 3: birthday wish + portrait (re-uses the moon of Stage 2) -->
+  <main class="p3-root" id="p3-root" data-embedded>
+
+    <!-- Stage 3 re-uses the moon of Stage 2 (adopted in JS); this one is removed when Stage 3 starts -->
+    <button class="p3-moon" id="p3-moon" type="button" tabindex="-1" aria-hidden="true" style="display:none">
+      <span class="p3-moon-halo" aria-hidden="true"></span>
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="p3MoonGrad" cx=".36" cy=".32" r=".85">
+            <stop offset="0" stop-color="#FFFCF2"/>
+            <stop offset=".55" stop-color="#F6EBCB"/>
+            <stop offset="1" stop-color="#D3BE8A"/>
+          </radialGradient>
+          <radialGradient id="p3MoonShade" cx=".5" cy=".5" r=".5">
+            <stop offset=".72" stop-color="#6E5A2E" stop-opacity="0"/>
+            <stop offset="1" stop-color="#6E5A2E" stop-opacity=".28"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#p3MoonGrad)"/>
+        <g fill="#B9A267" fill-opacity=".30">
+          <circle cx="68" cy="72" r="17"/>
+          <circle cx="126" cy="64" r="9"/>
+          <circle cx="132" cy="116" r="21"/>
+          <circle cx="82" cy="132" r="11"/>
+          <circle cx="104" cy="94" r="6"/>
+          <circle cx="58" cy="108" r="6"/>
+        </g>
+        <g fill="#FFFFFF" fill-opacity=".35">
+          <circle cx="63" cy="68" r="8"/>
+          <circle cx="126" cy="110" r="9"/>
+        </g>
+        <circle cx="100" cy="100" r="92" fill="url(#p3MoonShade)"/>
+      </svg>
+    </button>
+
+    <!-- Message and portrait share the same area below the moon -->
+    <section class="p3-stage" id="p3-stage">
+      <h1 class="p3-message" id="p3-message">Happy Birthday, Anika!</h1>
+
+      <figure class="p3-portrait" id="p3-portrait">
+        <!-- The image path is set in phase3.js (CONFIG.PORTRAIT_SRC) -->
+        <img id="p3-img" alt="Anika" decoding="async" draggable="false">
+        <div class="p3-fallback" aria-hidden="true">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            <path d="M12 2l1.9 6.1L20 10l-6.1 1.9L12 18l-1.9-6.1L4 10l6.1-1.9L12 2z" fill="currentColor"/>
+          </svg>
+        </div>
+      </figure>
+    </section>
+  </main>
+
+  <!-- STAGE 4: the royal gift box (re-uses the same moon and sky) -->
+  <main class="p4-root" id="p4-root" data-embedded>
+
+    <!-- Sky: identical look to Phase 2 / Phase 3 -->
+    <div class="p4-sky" aria-hidden="true"></div>
+    <div class="p4-stars" id="p4-stars" aria-hidden="true"></div>
+    <div class="p4-clouds" aria-hidden="true">
+      <i class="p4-cloud p4-cloud--a"></i>
+      <i class="p4-cloud p4-cloud--b"></i>
+      <i class="p4-cloud p4-cloud--c"></i>
+    </div>
+    <div class="p4-ground" aria-hidden="true"></div>
+
+    <!-- The scene and the gift box are drawn with SVG by phase4.js (no photograph).
+         Back layer -> gifts -> front layer: gifts come out from BEHIND the front wall of the open box. -->
+    <div class="p4-sc p4-scene" id="p4-scene" aria-hidden="true">
+      <div class="p4-bg"><svg id="p4-bgsvg" class="p4-sc-svg" viewBox="0 0 940 1192"></svg></div>
+      <i class="p4-flame p4-flame--a"></i>
+      <i class="p4-flame p4-flame--b"></i>
+      <svg id="p4-backsvg" class="p4-sc-svg" viewBox="0 0 940 1192"></svg>
+      <div class="p4-spots" id="p4-spots" aria-hidden="true"></div>
+      <div class="p4-seam" id="p4-seam">
+        <i class="p4-seam-beam"></i>
+        <i class="p4-seam-glow"></i>
+      </div>
+    </div>
+    <div class="p4-sc p4-scene-front" id="p4-scene-front" aria-hidden="true">
+      <svg id="p4-frontsvg" class="p4-sc-svg" viewBox="0 0 940 1192"></svg>
+    </div>
+
+    <!-- Everything that rises out of the box lives in this layer -->
+    <div class="p4-gifts" id="p4-gifts">
+
+      <!-- ITEM 1: royal scroll -->
+      <div class="p4-letter" id="p4-letter" aria-hidden="true">
+        <div class="p4-scroll">
+          <div class="p4-sheet" id="p4-sheet">
+            <div class="p4-reader" id="p4-reader">
+              <div class="p4-text" id="p4-text" lang="bn"></div>
+            </div>
+          </div>
+          <div class="p4-roller p4-roller--top"></div>
+          <div class="p4-roller p4-roller--bottom" id="p4-roller-b"></div>
+        </div>
+      </div>
+
+      <!-- ITEM 2: Anika's portrait (assets/anika-portrait-1.jpg) -->
+      <figure class="p4-gift p4-gift--portrait" id="p4-portrait">
+        <div class="p4-gift-float">
+          <img id="p4-portrait-img" alt="Anika" decoding="async" draggable="false">
+          <div class="p4-ph" aria-hidden="true"></div>
+        </div>
+      </figure>
+
+      <!-- ITEM 3: black hijab, drawn with SVG (no image file needed) -->
+      <div class="p4-gift p4-gift--hijab" id="p4-hijab" aria-hidden="true">
+        <div class="p4-gift-float">
+          <svg viewBox="0 0 600 800" xmlns="http://www.w3.org/2000/svg" focusable="false">
+            <defs>
+            <linearGradient id="hjGold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff0bf"/><stop offset=".5" stop-color="#e2b95c"/><stop offset="1" stop-color="#9c7122"/></linearGradient>
+            <filter id="hjSoft" x="-2%" y="-2%" width="104%" height="104%"><feGaussianBlur stdDeviation="2.1"/></filter>
+            <clipPath id="hjClip"><path clip-rule="evenodd" d="M214 57 213 58 204 58 195 60 183 65 171 73 166 78 150 86 128 100 119 108 116 113 107 135 105 149 106 150 107 162 110 172 119 188 117 198 117 211 108 233 102 244 101 256 107 272 124 306 128 317 140 335 154 349 164 356 187 367 201 376 204 377 212 377 219 375 222 376 222 379 213 397 212 402 213 414 203 434 199 447 198 455 191 474 190 485 189 486 189 500 191 506 199 518 214 535 214 537 203 568 192 593 191 598 169 649 162 672 165 678 191 702 202 709 220 718 222 718 226 721 229 735 231 738 238 761 240 764 244 764 277 757 329 741 373 720 375 718 374 716 374 707 382 704 385 701 385 694 384 693 384 682 385 681 410 680 423 683 439 683 449 679 452 676 462 673 463 671 462 649 525 614 526 610 523 605 523 602 544 590 550 583 546 571 537 557 536 552 560 533 572 521 575 516 575 514 567 500 547 469 546 464 570 445 576 438 577 434 571 422 558 402 550 392 546 389 515 355 499 334 469 299 435 254 403 204 365 133 353 116 341 104 337 97 327 87 316 81 289 74 265 64 236 58Z"/></clipPath>
+            </defs>
+            <path fill-rule="evenodd" fill="#08080b" d="M214 57 213 58 204 58 195 60 183 65 171 73 166 78 150 86 128 100 119 108 116 113 107 135 105 149 106 150 107 162 110 172 119 188 117 198 117 211 108 233 102 244 101 256 107 272 124 306 128 317 140 335 154 349 164 356 187 367 201 376 204 377 212 377 219 375 222 376 222 379 213 397 212 402 213 414 203 434 199 447 198 455 191 474 190 485 189 486 189 500 191 506 199 518 214 535 214 537 203 568 192 593 191 598 169 649 162 672 165 678 191 702 202 709 220 718 222 718 226 721 229 735 231 738 238 761 240 764 244 764 277 757 329 741 373 720 375 718 374 716 374 707 382 704 385 701 385 694 384 693 384 682 385 681 410 680 423 683 439 683 449 679 452 676 462 673 463 671 462 649 525 614 526 610 523 605 523 602 544 590 550 583 546 571 537 557 536 552 560 533 572 521 575 516 575 514 567 500 547 469 546 464 570 445 576 438 577 434 571 422 558 402 550 392 546 389 515 355 499 334 469 299 435 254 403 204 365 133 353 116 341 104 337 97 327 87 316 81 289 74 265 64 236 58Z"/>
+            <g clip-path="url(#hjClip)"><g filter="url(#hjSoft)" fill="#9a9cbc" fill-rule="evenodd">
+            <path opacity="0.1" d="M179 361 183 365 202 376 209 376 213 374 212 370 204 369 190 363ZM177 350 178 353 188 356 194 360 201 361 214 368 222 367 229 362 224 359 207 355 191 347ZM153 345 158 352 173 358 170 351 163 349 159 346ZM265 313 257 312 247 316 211 341 204 344 203 346 210 347 216 351 226 350 239 341 256 324 259 323 262 320ZM105 242 103 244 101 253 109 276 113 279 119 291 119 296 122 297 131 307 130 313 140 327 150 337 160 342 170 344 181 342 182 341 179 338 172 336 162 330 159 326 159 323 153 323 132 308 128 292 118 276 117 272 109 261ZM109 232 112 245 116 252 122 258 132 264 136 264 146 270 157 272 161 275 169 277 198 280 206 283 210 287 233 287 240 290 254 289 257 294 257 303 260 301 266 301 274 298 285 291 291 284 292 278 313 257 311 256 295 265 265 272 226 273 223 271 225 269 236 266 238 263 222 264 214 270 206 272 185 272 155 266 132 257 123 248 116 237 113 226 111 227ZM340 221 337 224 334 235 316 274 294 312 274 342 246 374 230 390 228 390 227 383 230 378 266 340 296 299 305 285 308 277 302 280 287 295 261 332 238 359 232 364 220 383 213 398 214 415 210 420 202 438 200 453 197 457 190 482 190 499 196 511 210 524 214 525 216 527 216 531 214 533 210 530 214 535 211 548 168 652 165 670 169 681 178 691 182 691 191 699 191 701 195 702 199 706 203 706 214 711 224 713 226 715 223 719 227 723 227 727 229 729 235 748 236 756 241 764 244 764 245 761 247 761 248 763 252 763 272 758 281 754 291 753 300 749 304 749 313 745 329 741 335 737 338 737 342 734 349 732 356 727 369 722 374 718 373 706 368 706 343 714 327 717 306 717 287 708 284 705 285 704 309 711 329 711 368 700 376 700 380 698 385 699 384 681 376 676 381 674 393 674 351 653 343 650 333 650 305 656 297 660 282 673 278 674 273 678 273 680 278 683 275 687 265 693 261 693 252 698 252 700 247 704 240 703 231 694 229 694 226 701 223 696 223 683 225 677 224 651 233 617 235 622 233 646 227 675 229 684 231 679 247 664 266 654 279 650 325 646 339 642 338 640 316 632 294 616 279 608 268 605 260 607 250 605 231 589 228 590 227 604 223 607 227 613 225 615 222 613 217 599 218 571 225 542 229 538 231 544 227 551 228 582 237 548 236 533 232 533 229 529 229 519 224 511 225 503 222 496 216 490 214 482 212 480 203 479 205 476 203 466 206 465 209 468 212 474 225 490 227 495 245 516 249 517 254 513 255 509 251 504 251 499 247 495 251 490 256 488 260 484 260 478 264 468 259 458 265 457 269 453 270 447 266 440 269 424 257 427 260 434 256 439 251 439 248 431 243 425 241 425 241 428 244 431 244 435 241 438 236 440 234 435 230 433 230 439 228 441 223 442 221 444 219 444 217 441 222 433 230 428 234 422 240 423 244 417 255 409 286 369 296 351 302 344 320 303 323 290 331 269 333 256 336 248ZM375 676 374 678 354 682 342 687 309 692 294 698 283 699 282 704 274 702 268 698 273 694 318 683 364 675ZM230 91 234 97 240 96 238 92ZM189 62 175 70 166 78 134 96 122 105 116 113 106 139 106 153 108 166 110 171 114 175 113 168 117 167 124 171 140 172 148 179 154 178 158 180 173 182 183 186 187 191 195 193 209 192 217 196 225 195 228 198 238 197 242 199 258 199 271 197 289 192 305 184 308 181 307 179 295 182 290 180 307 167 315 145 319 138 319 135 312 126 299 118 300 116 309 118 299 112 267 107 252 107 225 111 207 110 200 111 192 115 194 119 201 122 212 130 224 135 228 135 234 130 255 132 256 128 262 123 271 123 278 127 287 129 291 128 314 132 316 135 315 139 290 157 280 168 273 181 269 184 243 182 221 166 182 143 179 133 179 122 183 112 190 103 202 95 210 95 213 97 220 87 220 82 224 74 228 70 232 69 245 79 255 84 264 86 274 91 283 92 287 94 294 94 299 96 306 102 315 104 323 114 330 119 330 128 326 132 320 143 316 169 311 183 306 190 279 205 254 212 232 215 178 228 139 226 127 219 122 213 119 206 116 218 122 225 127 225 135 229 146 232 153 232 157 234 178 233 187 235 196 235 200 233 207 233 211 231 224 229 235 230 245 228 251 235 251 244 253 247 252 252 250 254 250 259 256 260 286 242 292 246 300 246 315 237 321 230 331 213 346 182 348 182 346 198 351 185 354 185 350 217 343 246 341 262 326 320 310 369 307 385 293 433 286 464 271 507 256 542 245 563 242 574 250 576 271 587 296 605 285 605 286 607 341 638 378 656 406 675 408 678 407 680 423 683 435 683 442 675 436 674 434 670 430 670 428 673 425 674 411 671 403 666 390 654 385 652 379 646 356 635 360 634 379 641 437 656 450 661 455 669 463 669 462 649 464 643 471 642 474 639 478 639 501 625 507 618 519 612 526 612 522 598 535 592 547 581 550 582 546 571 536 555 536 552 560 533 572 521 575 516 567 500 547 469 546 464 570 445 576 438 577 434 558 402 515 355 469 299 435 254 403 204 365 133 353 116 327 87 316 81 289 74 265 64 243 59 214 57ZM488 603 489 604 471 618 466 630 462 632 460 630 459 620 464 615ZM451 472 453 471 459 477 457 478 452 475ZM423 399 428 398 437 410 439 418 438 421 444 432 444 439 440 442 434 441 431 437 428 423 423 411ZM471 380 474 378 477 381 476 384ZM363 186 364 220 362 236 361 280 363 374 360 386 361 393 358 396 350 391 350 381 345 374 343 360 343 330 348 291 358 238 361 187ZM360 139 367 151 375 171 390 219 390 225 399 246 406 276 409 283 416 292 419 300 420 318 418 325 424 332 423 341 425 346 425 362 429 369 431 383 424 393 422 391 419 380 416 375 411 354 411 347 406 332 404 319 398 303 377 194 370 172 360 154ZM139 96 141 97 135 113 129 135 129 144 131 151 135 159 141 163 140 165 127 162 117 152 114 145 114 138 126 107ZM258 68 261 67 269 69 275 73 268 73ZM234 61 234 63 213 67 192 76 177 89 171 103 169 111 169 132 175 148 183 161 184 151 186 149 193 163 203 174 203 176 197 177 182 173 172 161 167 151 164 139 164 117 166 103 158 121 157 146 161 159 167 167 160 168 155 165 141 149 139 139 141 137 147 138 149 136 158 104 169 85 181 74 200 64 213 61Z"/>
+            <path opacity="0.1" d="M229 723 241 759 251 759 316 742 343 731 358 723 364 723 373 715 373 709 371 707 368 707 341 716 327 719 303 719 298 717 290 717 290 712 280 705 264 702 264 708 260 710 255 710 243 706 232 699 231 710 238 715 234 718 231 718ZM263 715 265 713 271 714 269 716ZM384 687 380 680 368 680 333 692 320 692 308 695 292 702 286 701 291 704 307 709 324 710 329 709 337 704 344 705 353 702 360 702 370 698 375 699 379 697 384 697ZM426 676 427 679 436 678 436 676ZM403 671 410 676 411 680 414 681 417 679 412 674ZM288 688 362 674 388 673 364 665 342 654 330 653 314 657 308 663 309 667 318 674 316 677 302 682 298 682ZM332 671 334 669 337 669 339 671 337 673 334 673ZM234 671 239 669 254 658 271 651 292 647 325 645 334 643 336 641 315 634 295 619 279 611 264 611 257 614 245 613 241 616 239 630 242 635 247 636 251 640 253 647 250 652 234 666ZM291 607 292 609 325 628 382 657 393 665 397 665 385 656 375 646 336 629 296 608ZM217 538 215 540 213 549 210 554 206 568 203 572 202 578 199 582 194 598 188 609 188 612 169 656 170 660 177 661 168 665 166 669 169 676 190 696 206 706 222 712 224 710 222 700 223 657 221 656 212 661 209 661 207 659 223 648 225 640 225 634 220 635 215 630 213 624 213 586 215 581 215 570 220 544 219 539ZM220 496 217 511 218 522 221 519 223 512 223 501ZM201 483 195 487 192 492 192 499 197 509 203 516 211 522 213 522 212 509 214 501 214 486 211 481ZM199 463 195 473 194 480 200 477ZM208 458 214 468 216 468 219 463 218 458ZM223 384 219 389 214 400 216 408 218 408 229 395 224 391ZM251 373 234 389 233 392 239 389ZM266 369 265 374 267 375 269 371ZM189 366 204 375 207 375 209 373ZM183 351 194 358 211 362 217 365 224 362 207 357 189 349ZM274 347 258 363 256 368 261 366 273 354ZM240 325 226 332 218 339 218 341 222 342 236 331ZM138 318 142 327 156 339 164 342 178 341 177 339 165 334 144 320ZM117 279 117 282 123 294 127 296 126 292ZM291 269 278 272 269 272 262 275 254 274 225 276 215 273 206 274 212 275 217 278 225 276 230 279 256 280 260 278 271 277 279 273 284 273ZM327 260 318 278 313 283 307 297 281 335 286 344 293 341 301 329 302 321 307 317 311 310 312 303 317 296 319 290 319 282 327 268ZM206 115 206 117 212 118 219 124 232 124 244 122 251 118 262 116 275 118 300 127 311 128 284 112 266 108 245 109 223 113 212 112ZM208 70 193 77 185 83 177 92 173 102 171 114 172 122 175 132 175 139 181 151 182 147 179 143 176 128 178 118 183 106 193 95 209 88 211 86 210 81 212 79 215 81 216 87 222 74 228 68 234 68 246 75 255 77 259 80 270 82 274 85 283 86 295 90 318 102 332 116 333 121 331 130 327 134 325 139 322 163 326 161 337 143 340 135 339 123 341 120 344 125 343 143 335 160 326 172 315 181 307 191 291 201 278 207 259 213 237 216 225 220 214 221 187 228 204 225 214 225 229 221 239 221 259 215 267 216 272 213 279 213 282 211 292 210 295 208 298 208 300 214 303 215 306 219 314 217 322 218 329 211 345 182 351 162 352 146 353 145 355 147 355 164 353 175 355 174 357 178 349 235 346 244 342 269 338 278 330 314 326 324 325 332 322 336 311 372 310 383 307 389 306 397 302 408 302 416 299 420 297 431 294 437 292 450 289 457 289 462 291 465 286 469 277 497 270 512 269 518 257 544 261 540 263 540 266 548 255 558 251 557 249 559 248 566 244 573 249 574 263 581 299 605 316 614 354 631 384 641 410 647 422 652 434 654 451 660 456 668 463 667 462 642 487 629 502 616 508 615 515 611 524 611 525 609 520 598 536 590 548 579 546 572 536 555 536 549 539 548 545 541 548 540 573 516 573 512 545 465 550 458 557 453 563 451 565 447 572 442 575 430 560 405 553 398 550 392 530 373 529 370 514 354 499 334 469 299 435 254 401 201 365 133 353 116 343 107 335 96 331 93 327 94 319 90 316 87 319 84 314 81 254 62 249 62 256 63 266 67 271 67 292 79 289 80 280 78 255 69 239 65 227 65ZM327 607 329 605 333 605 335 609 331 612ZM343 604 347 603 350 606 350 610 343 610ZM377 601 381 608 375 611 371 611 370 613 371 616 375 618 376 623 369 628 358 623 357 619 366 616 367 609 370 607 371 603 373 601ZM310 595 314 590 319 589 318 586 320 584 324 584 331 587 336 594 340 595 342 597 342 601 336 601 333 595 325 590 323 590 319 595 314 595 313 597ZM293 582 297 581 299 585 295 586ZM516 578 516 591 506 592 501 600 502 602 507 604 504 609 479 621 464 634 461 634 458 628 459 617 464 612 472 610 493 597 501 589 506 587 508 585 508 582 512 578ZM340 560 343 562 343 565 341 567 339 567 337 564ZM349 559 352 558 354 561 350 563ZM333 516 335 516 337 519 334 524 332 523ZM323 497 324 504 322 505 320 501ZM461 348 467 349 479 363 483 375 498 401 501 410 512 427 513 432 512 436 509 439 504 440 500 438 496 434 494 426 484 417 475 406 461 364 459 350ZM436 277 440 280 441 283 440 290 435 281ZM356 129 362 137 375 167 378 171 394 219 399 227 401 238 409 254 409 259 412 262 414 277 422 283 434 308 435 321 432 328 433 332 440 342 442 352 450 366 448 370 445 370 442 366 443 371 441 378 445 386 446 392 451 396 455 406 460 413 461 420 458 425 467 438 470 451 475 462 476 473 478 475 479 480 485 484 491 499 501 513 506 527 516 544 516 546 509 553 501 554 503 566 510 574 509 576 503 577 497 571 494 571 490 567 489 561 487 560 485 554 481 551 476 543 476 540 480 538 480 536 473 529 474 524 471 523 464 516 461 518 461 522 464 526 467 544 469 546 469 571 474 581 474 584 468 595 463 598 458 604 455 595 455 587 449 558 444 511 434 459 422 415 408 344 397 304 378 203 370 176 366 167 364 166 367 189 365 256 367 260 366 298 368 301 368 320 371 337 375 344 373 350 376 350 381 355 382 361 388 366 391 384 397 388 399 400 405 413 404 422 408 436 408 442 412 449 413 459 421 475 420 491 425 500 424 508 428 513 425 518 425 527 427 529 428 555 423 563 424 570 429 574 427 578 425 592 431 607 431 620 423 627 417 623 412 626 398 627 394 625 390 627 385 622 385 618 387 616 386 612 391 610 388 606 389 603 386 598 376 594 373 589 371 589 368 586 372 584 373 576 376 574 376 568 368 569 365 565 367 563 374 562 379 552 373 544 376 540 376 537 369 536 367 534 367 532 372 528 374 522 373 518 368 514 369 507 362 498 363 492 359 483 360 479 356 474 353 465 353 437 348 431 349 421 344 408 344 398 340 387 340 379 338 372 339 343 347 291 355 252 359 211 360 157 355 133ZM143 98 136 114 130 138 131 144 138 153 139 157 148 164 147 167 143 168 160 172 166 175 179 177 203 186 223 187 237 191 252 193 268 193 273 191 284 190 297 186 301 183 285 184 282 183 281 180 291 173 304 160 313 144 309 145 295 155 286 164 278 176 277 181 270 185 242 183 223 169 193 151 191 151 191 154 202 168 215 178 213 180 201 179 181 174 176 170 171 163 164 148 161 121 159 138 162 146 163 155 172 168 170 170 162 170 157 168 148 161 144 154 138 148 135 140 135 135 138 132 145 130 147 127 153 108 165 86 183 70 202 61 221 58 218 57 214 59 203 59 187 64 174 72 166 79 154 85 148 90ZM145 111 148 112 146 119 143 115Z"/>
+            <path opacity="0.11" d="M372 711 368 708 329 720 301 720 269 717 237 718 232 720 231 723 242 757 251 758 281 751 329 736 359 721 366 719 372 714ZM272 709 273 711 278 713 286 711 281 707 274 707ZM233 704 237 712 246 713 250 711 243 708 237 703ZM349 665 352 668 357 668 360 672 364 671 360 668ZM350 639 366 647 364 644 360 643 355 639ZM263 652 275 648 323 644 327 642 321 640 292 637 286 632 279 633 274 631 273 637 275 641 272 647ZM496 617 480 623 471 629 466 636 472 635 489 625ZM314 610 326 615 331 619 334 619 319 611ZM512 594 510 594 512 603 506 610 506 613 522 608 520 602ZM255 575 272 584 270 581 266 580 260 574ZM209 573 202 584 198 599 192 608 188 620 183 628 182 634 172 654 173 657 187 645 190 644 192 646 184 656 186 661 183 663 171 665 167 669 171 677 190 695 211 707 222 710 220 696 222 682 222 658 218 659 213 663 202 661 202 659 208 653 210 647 207 622 205 621 204 627 201 629 200 628 200 625 202 623 201 619 204 616 204 609 207 598 206 590 209 580ZM524 551 517 552 506 561 505 567 511 573 516 572 529 558ZM221 501 218 512 219 517 222 510ZM208 482 196 488 193 494 193 499 202 513 210 518 209 511 212 501 213 487 212 484ZM324 416 322 417 321 425 318 427 319 433 313 445 316 453 316 459 318 462 320 461 321 455 319 452 321 442 325 438 327 432 327 428 323 420ZM222 395 217 398 217 405 222 400ZM144 324 145 328 153 336 165 341 174 341 171 338 161 334 154 328ZM358 192 351 252 348 265 344 274 344 290 340 298 340 308 337 315 338 325 332 333 332 337 330 340 331 346 329 359 325 365 328 380 325 388 325 413 330 413 332 411 333 406 333 362 336 353 339 322 343 311 346 287 354 249ZM225 183 235 185 247 185 242 185 238 182ZM368 178 371 197 370 206 372 213 372 233 375 236 375 241 372 245 372 248 378 258 377 265 382 268 382 281 386 285 386 297 389 304 389 316 394 327 392 336 397 342 398 352 401 360 401 369 406 379 406 383 409 390 409 396 413 404 413 412 417 425 418 438 426 456 427 465 433 481 433 499 438 508 440 518 439 539 446 556 446 574 448 578 447 581 449 586 449 597 451 603 451 608 448 612 451 615 452 630 456 638 455 645 452 648 446 648 434 644 430 644 425 648 415 647 424 651 437 653 444 657 450 658 458 663 456 666 457 667 462 666 460 654 460 641 463 637 458 633 457 630 457 612 453 598 453 589 450 578 450 568 447 558 447 549 439 493 433 463 418 405 418 399 411 364 408 356 407 346 396 305 380 217 373 189ZM373 153 381 168 383 177 390 188 394 202 402 217 410 242 415 249 420 262 423 265 424 271 438 303 443 318 444 328 447 332 448 341 452 348 453 355 456 359 456 363 460 371 462 397 469 410 469 417 474 437 477 443 478 451 488 473 493 479 497 491 510 513 512 521 519 530 521 537 526 542 527 548 532 552 532 558 536 564 537 570 543 573 541 575 535 575 521 580 517 584 519 595 526 594 539 587 547 579 547 577 543 573 544 569 539 562 533 549 565 522 571 515 571 507 551 474 544 467 531 479 511 493 507 497 505 494 533 469 539 461 545 461 571 439 574 430 551 397 550 392 547 392 530 375 528 371 514 356 498 333 492 328 488 321 476 309 443 266 438 257 429 247 412 221 410 215 394 192 385 172ZM418 237 424 242 430 256 443 274 455 297 466 324 505 405 515 420 521 434 531 446 531 450 522 459 503 466 496 471 493 471 490 468 479 437 479 433 476 427 475 419 471 410 467 389 462 377 453 337 447 322 445 311 417 241ZM236 67 238 69 244 69 255 74 270 77 278 81 287 83 308 93 324 103 333 113 335 118 334 142 337 139 339 133 338 120 331 106 325 99 329 99 341 114 345 123 345 142 337 164 329 172 328 176 322 181 325 188 324 192 322 193 324 203 326 203 337 193 345 179 350 162 350 148 352 135 355 140 351 126 340 110 338 103 312 86 310 86 305 80 299 79 304 83 303 85 277 79 257 71Z"/>
+            <path opacity="0.13" d="M370 711 358 711 330 721 300 721 269 718 239 719 234 723 236 727 237 738 241 745 243 755 246 757 251 757 281 750 329 735 367 717 370 714ZM219 702 219 690 221 680 220 661 216 669 210 674 208 673 207 665 200 663 187 663 169 668 171 675 190 694 197 699 207 704 212 704 212 698 214 697ZM203 646 199 648 197 652 192 656 193 659 197 659 200 656ZM485 624 479 626 473 631 477 630ZM519 604 515 603 511 609 518 608ZM546 578 543 576 538 576 521 582 519 585 520 593 523 594 533 590 544 582ZM523 552 517 553 506 563 506 567 511 572 516 570 527 560 527 556ZM209 484 199 487 194 496 198 506 204 512 205 511 203 509 202 504 206 497 207 491 210 487ZM544 469 535 478 521 487 506 500 523 534 531 546 538 544 553 532 570 514 570 508 567 502 552 480 551 476ZM445 271 445 274 452 286 466 319 490 366 497 385 508 406 518 421 522 430 533 444 538 458 542 460 546 459 571 437 573 432 572 430 566 427 566 423 563 416 550 398 530 378 502 341 488 325 487 322 475 310ZM348 139 347 153 340 171 340 181 347 168 349 160Z"/>
+            <path opacity="0.15" d="M369 713 368 711 359 712 342 719 327 723 302 723 274 720 242 720 240 721 240 724 246 735 248 745 250 748 250 754 255 755 277 750 329 734 365 717ZM173 673 192 694 200 699 203 699 203 696 198 687 200 678 199 666 187 665 183 667 183 671 181 673ZM544 578 535 578 526 582 524 591 534 588 543 581ZM523 553 518 553 506 564 508 569 513 571 526 560 526 556ZM530 484 513 495 509 502 514 507 517 515 521 518 525 533 529 537 531 542 534 544 546 536 561 522 562 515 556 509 552 508 548 502 544 501 540 493 536 492 534 485ZM542 472 542 477 544 481 557 497 559 505 566 513 568 513 568 510 563 500 557 493 549 477 545 472ZM571 433 566 430 561 431 536 446 536 450 539 456 543 459 566 441ZM457 290 457 295 471 325 487 352 489 358 492 361 498 382 507 400 514 410 516 416 519 419 526 433 532 439 535 439 552 424 554 419 553 408 542 399 534 386 526 381 518 366 510 357 503 345 473 311Z"/>
+            <path opacity="0.18" d="M364 714 356 715 349 718 337 726 328 727 318 734 332 731 339 726 345 725 359 718ZM522 553 518 554 507 564 508 568 513 570 525 560 525 556ZM566 434 562 434 549 440 538 448 539 452 544 456 560 444 566 438Z"/>
+            </g></g>
+            <path d="M214 57 213 58 204 58 195 60 183 65 171 73 166 78 150 86 128 100 119 108 116 113 107 135 105 149 106 150 107 162 110 172 119 188 117 198 117 211 108 233 102 244 101 256 107 272 124 306 128 317 140 335 154 349 164 356 187 367 201 376 204 377 212 377 219 375 222 376 222 379 213 397 212 402 213 414 203 434 199 447 198 455 191 474 190 485 189 486 189 500 191 506 199 518 214 535 214 537 203 568 192 593 191 598 169 649 162 672 165 678 191 702 202 709 220 718 222 718 226 721 229 735 231 738 238 761 240 764 244 764 277 757 329 741 373 720 375 718 374 716 374 707 382 704 385 701 385 694 384 693 384 682 385 681 410 680 423 683 439 683 449 679 452 676 462 673 463 671 462 649 525 614 526 610 523 605 523 602 544 590 550 583 546 571 537 557 536 552 560 533 572 521 575 516 575 514 567 500 547 469 546 464 570 445 576 438 577 434 571 422 558 402 550 392 546 389 515 355 499 334 469 299 435 254 403 204 365 133 353 116 341 104 337 97 327 87 316 81 289 74 265 64 236 58Z" fill="none" stroke="#3d3d4c" stroke-width="1.1" opacity=".7" fill-rule="evenodd"/>
+            <rect x="498.4" y="613.1" width="22" height="8" rx="1.4" fill="url(#hjGold)" transform="rotate(-30 509.4 617.1)"/>
+            </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Golden sparkles -->
+    <canvas class="p4-fx" id="p4-fx" aria-hidden="true"></canvas>
+
+    <!-- The historical quill (drawn in phase4.js) -->
+    <div class="p4-quill" id="p4-quill" aria-hidden="true">
+      <svg id="p4-quill-svg" viewBox="0 0 160 360" xmlns="http://www.w3.org/2000/svg" focusable="false"></svg>
+    </div>
+
+    <!--
+      The moon: the only navigation control. Same look and position as Phase 2 / Phase 3.
+      Standalone test: it starts "ready"; click it (this is the click that leaves Stage 3).
+      When merged, Phase4.start({ moon }) adopts the moon that already exists.
+    -->
+    <button class="p4-moon p4-moon-ready" id="p4-moon" type="button" aria-label="The moon. Press to begin.">
+      <span class="p4-moon-halo" aria-hidden="true"></span>
+      <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">
+        <defs>
+          <radialGradient id="p4MoonGrad" cx=".36" cy=".32" r=".85">
+            <stop offset="0" stop-color="#FFFCF2"/>
+            <stop offset=".55" stop-color="#F6EBCB"/>
+            <stop offset="1" stop-color="#D3BE8A"/>
+          </radialGradient>
+          <radialGradient id="p4MoonShade" cx=".5" cy=".5" r=".5">
+            <stop offset=".72" stop-color="#6E5A2E" stop-opacity="0"/>
+            <stop offset="1" stop-color="#6E5A2E" stop-opacity=".28"/>
+          </radialGradient>
+        </defs>
+        <circle cx="100" cy="100" r="92" fill="url(#p4MoonGrad)"/>
+        <g fill="#B9A267" fill-opacity=".30">
+          <circle cx="68" cy="72" r="17"/>
+          <circle cx="126" cy="64" r="9"/>
+          <circle cx="132" cy="116" r="21"/>
+          <circle cx="82" cy="132" r="11"/>
+          <circle cx="104" cy="94" r="6"/>
+          <circle cx="58" cy="108" r="6"/>
+        </g>
+        <g fill="#FFFFFF" fill-opacity=".35">
+          <circle cx="63" cy="68" r="8"/>
+          <circle cx="126" cy="110" r="9"/>
+        </g>
+        <circle cx="100" cy="100" r="92" fill="url(#p4MoonShade)"/>
+      </svg>
+    </button>
+
+    <!-- Measures the bottom safe-area (notch / home bar) -->
+    <div class="p4-probe" id="p4-probe" aria-hidden="true"></div>
+  </main>
+
+  <script src="./script.js" defer></script>
+  <script src="./phase3.js" defer></script>
+  <script src="./phase4.js" defer></script>
+  <script src="./stage-link.js" defer></script>
+</body>
+</html>

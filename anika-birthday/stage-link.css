@@ -1,0 +1,18 @@
+/* =====================================================================
+   The link between the stages (Stage 1+2  ->  Stage 3  ->  Stage 4).
+   The moon of Stage 2 stays on screen for the whole experience; Stage 3 and Stage 4 are
+   transparent layers on top of the same sky, so none of them may catch the clicks:
+   the click goes straight through to the moon underneath.
+   ===================================================================== */
+.p3-root[data-embedded],
+.p4-root[data-embedded] {
+  background: transparent;
+  pointer-events: none;
+  visibility: hidden;
+}
+body.is-phase3 .p3-root[data-embedded] { visibility: visible; }
+body.is-phase4 .p4-root[data-embedded] { visibility: visible; }
+
+/* The lettering of Stage 2 dissolves while Stage 3's message appears */
+.p2-canvas { transition: opacity 1.6s ease; }
+body.is-p2-leaving .p2-canvas { opacity: 0; }
